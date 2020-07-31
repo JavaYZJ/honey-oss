@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eboy.honey.oss.server.application.dao.FileMapper">
+
+    <sql id="file_base_filed"> uid, file_name, file_key, file_suffix, file_size, file_path, shard_size, shard_total,create_time, update_time</sql>
+    <insert id="addFile">
+        insert into t_file(uid, file_name, file_key, file_suffix, file_size, file_path, shard_size, shard_total)
+        values (#{file.uid}, #{file.fileName}, #{file.fileKey}, #{file.fileSuffix}, #{file.fileSize},
+                #{file.filePath}, #{file.shardSize}, #{file.shardTotal})
+    </insert>
+    <select id="getFileByIds" resultType="com.eboy.honey.oss.server.application.po.FilePo">
+        select
+        <include refid="file_base_filed"/>
+        from t_file where is_deleted = 0 and uid in
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="getFileByFileKeys" resultType="com.eboy.honey.oss.server.application.po.FilePo">
+        select
+        <include refid="file_base_filed"/>
+        from t_file where is_deleted = 0 and file_key in
+        <foreach item="item" index="index" collection="fileKeys" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <update id="deleteFileByIds">
+        update t_file set is_deleted = 1 where is_deleted = 0 and uid in
+        <foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="deletedFileByFileKeys">
+        update t_file set is_deleted = 1 where is_deleted = 0 and file_key in
+        <foreach item="item" index="index" collection="fileKeys" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="updateFileName">
+        update t_file
+        set file_name = #{fileName}
+        where uid = #{fileId}
+          and is_deleted = 0
+    </update>
+    <update id="updateFileState">
+        update t_file
+        set file_state = #{fileState}
+        where uid = #{fileId}
+          and is_deleted = 0
+    </update>
+</mapper>

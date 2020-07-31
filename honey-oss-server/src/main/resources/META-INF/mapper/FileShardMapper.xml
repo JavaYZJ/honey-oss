@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eboy.honey.oss.server.application.dao.FileShardMapper">
+
+    <sql id="shard_base_sql">uid, file_key, shard_index, shard_state, create_time, update_time</sql>
+    <insert id="addFileShard">
+        insert into t_file_shard(uid, file_key, shard_index)
+        values (#{fileShard.uid}, #{fileShard.fileKey}, #{fileShard.shardIndex})
+    </insert>
+
+    <update id="updateFileShardState">
+        update t_file_shard
+        set shard_state = #{fileShardState}
+        where uid = #{fileShardId}
+          and is_deleted = 0
+    </update>
+    <select id="getFileShardInfoByFileKeys" resultType="com.eboy.honey.oss.server.application.po.FileShardPo">
+        select
+        <include refid="shard_base_sql"/>
+        from t_file_shard
+        where file_key in
+        <foreach item="item" index="index" collection="fileKeys" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_deleted = 0 order by file_key ,shard_index
+    </select>
+
+    <select id="getFileShardByFileKeyAndState"
+            resultType="com.eboy.honey.oss.server.application.po.FileShardPo">
+        select
+        <include refid="shard_base_sql"/>
+        from t_file_shard
+        where file_key = #{fileKey} and shard_state = #{fileState} and is_deleted = 0 order by shard_index
+    </select>
+    <select id="getLastUploadShardIndex" resultType="com.eboy.honey.oss.server.application.po.FileShardPo">
+        select
+        <include refid="shard_base_sql"/>
+        from t_file_shard
+        where file_key = #{fileKey} and is_deleted = 0
+        order by shard_index desc limit 1
+    </select>
+</mapper>
