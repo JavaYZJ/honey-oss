@@ -19,6 +19,10 @@ public class FileShardPo {
      */
     private String fileKey;
     /**
+     * 文件分片名
+     */
+    private String shardName;
+    /**
      * 当前分片
      */
     private int shardIndex;

@@ -1,4 +1,4 @@
-package com.eboy.honey.oss.server.api.dto;
+package com.eboy.honey.oss.dto;
 
 import java.io.Serializable;
 
@@ -8,6 +8,7 @@ import java.io.Serializable;
  */
 public class FileShardDto implements Serializable {
 
+    private static final long serialVersionUID = 4963288535627843269L;
     /**
      * 唯一id
      */

@@ -1,13 +1,15 @@
-package com.eboy.honey.oss.server.application.constant;
+package com.eboy.honey.oss.constant;
 
 import lombok.AllArgsConstructor;
+
+import java.io.Serializable;
 
 /**
  * @author yangzhijie
  * @date 2020/7/31 16:35
  */
 @AllArgsConstructor
-public enum FileState {
+public enum FileState implements Serializable {
     /**
      * 上传中
      */

@@ -1,25 +1,26 @@
-package com.eboy.honey.oss.server.application.service;
+package com.eboy.honey.oss.dubbo.service;
+
 
 import com.eboy.honey.oss.constant.FileState;
-import com.eboy.honey.oss.server.application.vo.ConcurrentShardVo;
-import com.eboy.honey.oss.server.application.vo.FileShardVo;
+import com.eboy.honey.oss.dto.ConcurrentShardDto;
+import com.eboy.honey.oss.dto.FileShardDto;
 
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author yangzhijie
- * @date 2020/7/31 14:33
+ * @date 2020/8/6 13:34
  */
-public interface FileShardService {
+public interface FileShardRpcService {
 
     /**
      * 添加文件分片信息
      *
-     * @param fileShardVo 文件分片信息
+     * @param fileShardDto 文件分片信息
      * @return 是否成功
      */
-    boolean addFileShard(FileShardVo fileShardVo);
+    boolean addFileShard(FileShardDto fileShardDto);
 
     /**
      * 更新文件分片状态
@@ -36,7 +37,7 @@ public interface FileShardService {
      * @param fileKeys 文件fileKeys
      * @return 文件分片信息
      */
-    Map<String, List<FileShardVo>> getFileShardInfoByFileKeys(List<String> fileKeys);
+    Map<String, List<FileShardDto>> getFileShardInfoByFileKeys(List<String> fileKeys);
 
     /**
      * 根据fileKey与分片状态获取分片信息
@@ -45,7 +46,7 @@ public interface FileShardService {
      * @param fileShardState 分片状态
      * @return 文件分片信息
      */
-    List<FileShardVo> getFileShardByFileKeyAndState(String fileKey, FileState fileShardState);
+    List<FileShardDto> getFileShardByFileKeyAndState(String fileKey, FileState fileShardState);
 
 
     /**
@@ -54,5 +55,5 @@ public interface FileShardService {
      * @param fileKey 文件fileKey
      * @return 当前上传的分片
      */
-    ConcurrentShardVo getConcurrentUploadShardIndex(String fileKey);
+    ConcurrentShardDto getConcurrentUploadShardIndex(String fileKey);
 }

@@ -1,4 +1,4 @@
-package com.eboy.honey.oss.server.api.dto;
+package com.eboy.honey.oss.dto;
 
 import java.io.Serializable;
 import java.util.List;
@@ -8,6 +8,8 @@ import java.util.List;
  * @date 2020/7/29 17:03
  */
 public class FileDto implements Serializable {
+
+    private static final long serialVersionUID = -23861453836665262L;
     /**
      * 唯一id
      */

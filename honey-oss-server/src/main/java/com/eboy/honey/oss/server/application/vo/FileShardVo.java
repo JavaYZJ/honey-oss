@@ -2,6 +2,7 @@ package com.eboy.honey.oss.server.application.vo;
 
 import lombok.Data;
 
+import java.io.InputStream;
 import java.util.Date;
 
 /**
@@ -20,6 +21,10 @@ public class FileShardVo {
      */
     private String fileKey;
     /**
+     * 分片文件名
+     */
+    private String shardName;
+    /**
      * 当前分片
      */
     private int shardIndex;
@@ -27,7 +32,10 @@ public class FileShardVo {
      * 分片状态 0-上传中 1-上传成功 2-上传失败
      */
     private int shardState;
-
+    /**
+     * 文件分片流
+     */
+    private InputStream fileShardStream;
     /**
      * 创建时间
      */
