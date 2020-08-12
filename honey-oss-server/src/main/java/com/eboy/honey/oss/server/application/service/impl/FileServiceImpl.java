@@ -2,6 +2,7 @@ package com.eboy.honey.oss.server.application.service.impl;
 
 import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.server.application.BeanConvertUtil;
+import com.eboy.honey.oss.server.application.componet.AsyncTask;
 import com.eboy.honey.oss.server.application.dao.FileMapper;
 import com.eboy.honey.oss.server.application.po.FilePo;
 import com.eboy.honey.oss.server.application.service.FileService;
@@ -36,9 +37,12 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private FileMapper fileMapper;
 
+    @Autowired
+    private AsyncTask asyncTask;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo, String bucketName,ContentType contentType) {
+    public boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo, String bucketName, ContentType contentType) {
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
         if (secondTransCheck(fileVo)) {
             return true;
@@ -48,13 +52,41 @@ public class FileServiceImpl implements FileService {
         fileMapper.addFile(filePo);
         // 再逐个上传分片(1、上传到Minio 2、插入到数据库)
         honeyMiniO.upload(bucketName, fileShardVo.getShardName(), fileShardVo.getFileShardStream(), contentType);
+        fileShardVo.setShardState(FileState.SUCCESS.getStateCode());
+        fileShardService.addFileShard(fileShardVo);
+        // 检查是不是最后一块，是的话，触发异步合并，修改文件状态为成功状态
+        return true;
+    }
+
+    /**
+     * 异步上传文件
+     *
+     * @param fileVo      文件实体
+     * @param fileShardVo 分片
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否上传成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo, String bucketName, ContentType contentType) {
+        // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
+        if (secondTransCheck(fileVo)) {
+            return true;
+        }
+        // 创建文件信息
+        FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
+        fileMapper.addFile(filePo);
+        // 异步上传到Minio
+        asyncTask.asyncUpload(fileShardVo, bucketName, contentType);
+        // 插入到数据库
         return fileShardService.addFileShard(fileShardVo);
 
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo,ContentType contentType) {
+    public boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo, ContentType contentType) {
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
         if (secondTransCheck(fileVo)) {
             return true;
@@ -64,8 +96,33 @@ public class FileServiceImpl implements FileService {
         fileMapper.addFile(filePo);
         // 再逐个上传分片(1、上传到Minio 2、插入到数据库)
         honeyMiniO.upload(fileShardVo.getShardName(), fileShardVo.getFileShardStream(), contentType);
+        fileShardVo.setShardState(FileState.SUCCESS.getStateCode());
         return fileShardService.addFileShard(fileShardVo);
 
+    }
+
+    /**
+     * 异步上传文件
+     *
+     * @param fileVo      文件实体
+     * @param fileShardVo 分片
+     * @param contentType contentType
+     * @return 是否上传成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo, ContentType contentType) {
+        // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
+        if (secondTransCheck(fileVo)) {
+            return true;
+        }
+        // 创建文件信息
+        FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
+        fileMapper.addFile(filePo);
+        // 异步上传到Minio
+        asyncTask.asyncUpload(fileShardVo, contentType);
+        // 插入到数据库
+        return fileShardService.addFileShard(fileShardVo);
     }
 
     /**

@@ -4,8 +4,16 @@
 
     <sql id="shard_base_sql"> uid, file_key, shard_name,shard_index, shard_state, create_time, update_time</sql>
     <insert id="addFileShard">
-        insert into t_file_shard(uid, file_key, shard_name, shard_index)
-        values (#{fileShard.uid}, #{fileShard.fileKey}, #{fileShard.shardName}, #{fileShard.shardIndex})
+        insert into t_file_shard(uid, file_key, shard_name,
+        <if test="fileShard.shardState != null and fileShard.shardState != ''">
+            shard_state,
+        </if>
+        shard_index)
+        values (#{fileShard.uid}, #{fileShard.fileKey}, #{fileShard.shardName},
+        <if test="fileShard.shardState != null and fileShard.shardState != ''">
+            #{fileShard.shardState},
+        </if>
+        #{fileShard.shardIndex})
     </insert>
 
     <update id="updateFileShardState">

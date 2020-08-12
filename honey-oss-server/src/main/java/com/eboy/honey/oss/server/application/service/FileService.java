@@ -27,6 +27,17 @@ public interface FileService {
     boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo, String bucketName, ContentType contentType);
 
     /**
+     * 异步上传文件
+     *
+     * @param fileVo      文件实体
+     * @param fileShardVo 分片
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否上传成功
+     */
+    boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo, String bucketName, ContentType contentType);
+
+    /**
      * 上传文件
      *
      * @param fileVo      文件实体
@@ -34,7 +45,17 @@ public interface FileService {
      * @param contentType contentType
      * @return 是否上传成功
      */
-    boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo,ContentType contentType);
+    boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo, ContentType contentType);
+
+    /**
+     * 上传文件
+     *
+     * @param fileVo      文件实体
+     * @param fileShardVo 分片
+     * @param contentType contentType
+     * @return 是否上传成功
+     */
+    boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo, ContentType contentType);
 
     /**
      * 下载为url
