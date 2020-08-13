@@ -1,4 +1,4 @@
-package com.eboy.honey.oss.server.application;
+package com.eboy.honey.oss.server.application.utils;
 
 import org.springframework.beans.BeanUtils;
 

@@ -1,6 +1,7 @@
 package com.eboy.honey.oss.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,8 +44,19 @@ public class FileDto implements Serializable {
      */
     private int shardTotal;
 
+    /**
+     * 分片信息
+     */
     private List<FileShardDto> fileShardDtos;
 
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 
     public String getUid() {
         return uid;
@@ -116,5 +128,21 @@ public class FileDto implements Serializable {
 
     public void setFileShardDtos(List<FileShardDto> fileShardDtos) {
         this.fileShardDtos = fileShardDtos;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }

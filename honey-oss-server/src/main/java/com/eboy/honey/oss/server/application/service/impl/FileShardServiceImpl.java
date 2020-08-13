@@ -1,10 +1,10 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
 import com.eboy.honey.oss.constant.FileState;
-import com.eboy.honey.oss.server.application.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.dao.FileShardMapper;
 import com.eboy.honey.oss.server.application.po.FileShardPo;
 import com.eboy.honey.oss.server.application.service.FileShardService;
+import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.ConcurrentShardVo;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -50,11 +50,11 @@ public interface FileMapper {
     /**
      * 更新文件状态
      *
-     * @param fileId 文件id
+     * @param fileId    文件id
      * @param fileState 文件状态
      * @return 是否成功
      */
-    boolean updateFileState(@Param("fileId") String fileId, @Param("fileState") int fileState);
+    boolean updateFileState(@Param("fileKey") String fileKey, @Param("fileState") int fileState);
 
     /**
      * 根据ids删除文件

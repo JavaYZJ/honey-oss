@@ -1,4 +1,4 @@
-package com.eboy.honey.oss.dubbo.service;
+package com.eboy.honey.oss.dubbo;
 
 
 import com.eboy.honey.oss.constant.FileState;

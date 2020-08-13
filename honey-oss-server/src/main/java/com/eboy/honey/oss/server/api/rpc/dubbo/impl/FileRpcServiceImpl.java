@@ -2,12 +2,17 @@ package com.eboy.honey.oss.server.api.rpc.dubbo.impl;
 
 
 import com.eboy.honey.oss.dto.FileDto;
-import com.eboy.honey.oss.dubbo.service.FileRpcService;
-import com.eboy.honey.oss.server.application.BeanConvertUtil;
+import com.eboy.honey.oss.dto.FileShardDto;
+import com.eboy.honey.oss.dto.HoneyStream;
+import com.eboy.honey.oss.dubbo.FileRpcService;
 import com.eboy.honey.oss.server.application.service.FileService;
+import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
+import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.apache.dubbo.config.annotation.Service;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
@@ -18,19 +23,67 @@ import java.util.List;
 @Service(version = "1.0")
 public class FileRpcServiceImpl implements FileRpcService {
 
+    @Value("${honey.oss.minio.bucketName}")
+    private String bucketName;
+
     @Autowired
     private FileService fileService;
 
     /**
      * 上传文件
      *
-     * @param fileDto 文件实体
+     * @param fileDto      文件实体
+     * @param fileShardDto 文件分片信息
+     * @param bucketName   桶名
+     * @param contentType  contentType
      * @return 是否上传成功
      */
     @Override
-    public boolean addLocalFile(FileDto fileDto) {
+    public boolean uploadFileShard(FileDto fileDto, FileShardDto fileShardDto, String bucketName, ContentType contentType) {
         FileVo fileVo = BeanConvertUtil.convert(fileDto, FileVo.class);
-        return fileService.addLocalFile(fileVo);
+        FileShardVo fileShardVo = BeanConvertUtil.convert(fileShardDto, FileShardVo.class);
+        fileShardVo.setFileShardStream(fileShardDto.getHoneyStream().getInputStream());
+        return fileService.uploadFile(fileVo, fileShardVo, bucketName, contentType);
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param fileDto     文件实体
+     * @param honeyStream 文件流
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    @Override
+    public boolean uploadFile(FileDto fileDto, HoneyStream honeyStream, String bucketName, ContentType contentType) {
+        FileVo fileVo = BeanConvertUtil.convert(fileDto, FileVo.class);
+        return fileService.upload(fileVo, honeyStream.getInputStream(), bucketName, contentType);
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param fileDto     文件实体
+     * @param honeyStream 文件流
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    public boolean uploadFile(FileDto fileDto, HoneyStream honeyStream, ContentType contentType) {
+        FileVo fileVo = BeanConvertUtil.convert(fileDto, FileVo.class);
+        return fileService.upload(fileVo, honeyStream.getInputStream(), bucketName, contentType);
+    }
+
+    /**
+     * 上传文件
+     *
+     * @param fileDto      文件实体
+     * @param fileShardDto 文件分片信息
+     * @param contentType  contentType
+     * @return 是否上传成功
+     */
+    public boolean uploadFileShard(FileDto fileDto, FileShardDto fileShardDto, ContentType contentType) {
+        return uploadFileShard(fileDto, fileShardDto, bucketName, contentType);
     }
 
     /**

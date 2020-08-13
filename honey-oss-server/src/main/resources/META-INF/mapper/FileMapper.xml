@@ -45,7 +45,7 @@
     <update id="updateFileState">
         update t_file
         set file_state = #{fileState}
-        where uid = #{fileId}
-          and is_deleted = 0
+        where file_key = #{fileKey}
+        and is_deleted = 0
     </update>
 </mapper>

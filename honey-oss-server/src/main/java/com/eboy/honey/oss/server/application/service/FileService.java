@@ -1,6 +1,7 @@
 package com.eboy.honey.oss.server.application.service;
 
 
+import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.apache.http.entity.ContentType;
@@ -38,32 +39,15 @@ public interface FileService {
     boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo, String bucketName, ContentType contentType);
 
     /**
-     * 上传文件
+     * 文件上传
      *
      * @param fileVo      文件实体
-     * @param fileShardVo 分片
+     * @param inputStream 文件流
+     * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否上传成功
+     * @return 是否成功
      */
-    boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo, ContentType contentType);
-
-    /**
-     * 上传文件
-     *
-     * @param fileVo      文件实体
-     * @param fileShardVo 分片
-     * @param contentType contentType
-     * @return 是否上传成功
-     */
-    boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo, ContentType contentType);
-
-    /**
-     * 下载为url
-     *
-     * @param objectName 对象名
-     * @return string 文件的url
-     */
-    String downAsUrl(String objectName);
+    boolean upload(FileVo fileVo, InputStream inputStream, String bucketName, ContentType contentType);
 
     /**
      * 下载为url
@@ -82,15 +66,6 @@ public interface FileService {
      * @return InputStream 文件流
      */
     InputStream downAsStream(String bucketName, String objectName);
-
-    /**
-     * 下载为文件流
-     *
-     * @param objectName 对象名
-     * @return InputStream 文件流
-     */
-    InputStream downAsStream(String objectName);
-
 
     /**
      * 根据ids查找文件
@@ -132,4 +107,13 @@ public interface FileService {
      * @return 是否成功
      */
     boolean deletedFileByFileKeys(List<String> fileKeys);
+
+    /**
+     * 更新文件状态
+     *
+     * @param fileKey   文件key
+     * @param fileState 文件状态
+     * @return 是否成功
+     */
+    boolean updateFileState(String fileKey, FileState fileState);
 }
