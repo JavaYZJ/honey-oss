@@ -2,7 +2,7 @@ package com.eboy.honey.oss.server.application.vo;
 
 import lombok.Data;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.Date;
 
 /**
@@ -33,9 +33,9 @@ public class FileShardVo {
      */
     private int shardState;
     /**
-     * 文件分片流
+     * 文件分片
      */
-    private InputStream fileShardStream;
+    private File shardFile;
     /**
      * 创建时间
      */

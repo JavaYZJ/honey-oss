@@ -50,15 +50,14 @@ public class FileRpcServiceImpl implements FileRpcService {
      * 上传文件
      *
      * @param fileDto     文件实体
-     * @param honeyStream 文件流
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否成功
      */
     @Override
-    public boolean uploadFile(FileDto fileDto, HoneyStream honeyStream, String bucketName, ContentType contentType) {
+    public boolean uploadFile(FileDto fileDto, String bucketName, ContentType contentType) {
         FileVo fileVo = BeanConvertUtil.convert(fileDto, FileVo.class);
-        return fileService.upload(fileVo, honeyStream.getInputStream(), bucketName, contentType);
+        return fileService.upload(fileVo, fileDto.getHoneyStream().getInputStream(), bucketName, contentType);
     }
 
     /**

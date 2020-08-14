@@ -2,7 +2,7 @@ package com.eboy.honey.oss.server.application.service;
 
 
 import com.eboy.honey.oss.constant.FileState;
-import com.eboy.honey.oss.server.application.vo.FileShardVo;
+import com.eboy.honey.oss.dto.FileUpload;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.apache.http.entity.ContentType;
 
@@ -19,35 +19,32 @@ public interface FileService {
     /**
      * 上传文件
      *
-     * @param fileVo      文件实体
-     * @param fileShardVo 分片
+     * @param fileUpload  文件实体
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否上传成功
      */
-    boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo, String bucketName, ContentType contentType);
+    boolean uploadFile(FileUpload fileUpload, String bucketName, ContentType contentType);
 
     /**
      * 异步上传文件
      *
-     * @param fileVo      文件实体
-     * @param fileShardVo 分片
+     * @param fileUpload      文件实体
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否上传成功
      */
-    boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo, String bucketName, ContentType contentType);
+    boolean asyncUploadFile(FileUpload fileUpload, String bucketName, ContentType contentType);
 
     /**
      * 文件上传
      *
-     * @param fileVo      文件实体
-     * @param inputStream 文件流
+     * @param fileUpload      文件实体
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否成功
      */
-    boolean upload(FileVo fileVo, InputStream inputStream, String bucketName, ContentType contentType);
+    boolean upload(FileUpload fileUpload, String bucketName, ContentType contentType);
 
     /**
      * 下载为url

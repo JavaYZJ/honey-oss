@@ -1,5 +1,6 @@
 package com.eboy.honey.oss.dto;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -30,7 +31,7 @@ public class FileDto implements Serializable {
     /**
      * 文件大小
      */
-    private int fileSize;
+    private long fileSize;
     /**
      * 文件相对路径
      */
@@ -38,11 +39,21 @@ public class FileDto implements Serializable {
     /**
      * 分片大小
      */
-    private int shardSize;
+    private long shardSize;
     /**
      * 分片总数
      */
     private int shardTotal;
+
+    /**
+     * 文件
+     */
+    private File file;
+
+    /**
+     * 文件流
+     */
+    private HoneyStream honeyStream;
 
     /**
      * 分片信息
@@ -90,11 +101,11 @@ public class FileDto implements Serializable {
         this.fileSuffix = fileSuffix;
     }
 
-    public int getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(int fileSize) {
+    public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
     }
 
@@ -106,11 +117,11 @@ public class FileDto implements Serializable {
         this.filePath = filePath;
     }
 
-    public int getShardSize() {
+    public long getShardSize() {
         return shardSize;
     }
 
-    public void setShardSize(int shardSize) {
+    public void setShardSize(long shardSize) {
         this.shardSize = shardSize;
     }
 
@@ -144,5 +155,21 @@ public class FileDto implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public HoneyStream getHoneyStream() {
+        return honeyStream;
+    }
+
+    public void setHoneyStream(HoneyStream honeyStream) {
+        this.honeyStream = honeyStream;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 }

@@ -2,6 +2,7 @@ package com.eboy.honey.oss.server.application.vo;
 
 import lombok.Data;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +45,10 @@ public class FileVo {
      * 分片总数
      */
     private int shardTotal;
+    /**
+     * file
+     */
+    private File file;
     /**
      * 分片信息
      */

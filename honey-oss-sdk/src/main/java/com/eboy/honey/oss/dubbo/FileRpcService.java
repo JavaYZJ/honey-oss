@@ -3,7 +3,6 @@ package com.eboy.honey.oss.dubbo;
 
 import com.eboy.honey.oss.dto.FileDto;
 import com.eboy.honey.oss.dto.FileShardDto;
-import com.eboy.honey.oss.dto.HoneyStream;
 import org.apache.http.entity.ContentType;
 
 import java.util.List;
@@ -29,12 +28,11 @@ public interface FileRpcService {
      * 上传文件
      *
      * @param fileDto     文件实体
-     * @param honeyStream 文件流
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否成功
      */
-    boolean uploadFile(FileDto fileDto, HoneyStream honeyStream, String bucketName, ContentType contentType);
+    boolean uploadFile(FileDto fileDto, String bucketName, ContentType contentType);
 
     /**
      * 根据ids查找文件

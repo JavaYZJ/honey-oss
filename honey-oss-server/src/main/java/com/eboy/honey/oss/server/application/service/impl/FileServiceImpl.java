@@ -1,6 +1,7 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
 import com.eboy.honey.oss.constant.FileState;
+import com.eboy.honey.oss.dto.FileUpload;
 import com.eboy.honey.oss.server.application.componet.AsyncTask;
 import com.eboy.honey.oss.server.application.dao.FileMapper;
 import com.eboy.honey.oss.server.application.po.FilePo;
@@ -10,12 +11,19 @@ import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.entity.ContentType;
+import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +35,7 @@ import java.util.stream.Collectors;
  * @date 2020/7/29 16:57
  */
 @Service
+@Slf4j
 public class FileServiceImpl implements FileService {
 
     @Value("${honey.oss.minio.bucketName}")
@@ -47,21 +56,39 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo,
-                              String bucketName, ContentType contentType) {
+    public boolean uploadFile(FileUpload fileUpload, String bucketName, ContentType contentType) {
+        //
+
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
-        if (secondTransCheck(fileVo)) {
+        if (secondTransCheck(fileUpload)) {
             return true;
         }
-        // 创建文件信息
-        FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
-        fileMapper.addFile(filePo);
-        // 再逐个上传分片(1、上传到Minio 2、插入到数据库)
-        honeyMiniO.upload(bucketName, fileShardVo.getShardName(), fileShardVo.getFileShardStream(), contentType);
-        fileShardVo.setShardState(FileState.SUCCESS.getStateCode());
-        fileShardService.addFileShard(fileShardVo);
-        // 异步检查是否最后一块并修改文件状态
-        asyncTask.asyncCheckAndMerge(fileShardVo);
+        File file = fileVo.getFile();
+        if (file != null) {
+            try {
+                // 上传的是整个文件，不做分片处理
+                FileInputStream inputStream = new FileInputStream(file);
+                honeyMiniO.upload(bucketName, fileVo.getFileKey(), inputStream, contentType);
+                // 上传完毕，，添加信息到数据库
+                FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
+                filePo.setFileState(FileState.SUCCESS.getStateCode());
+                fileMapper.addFile(filePo);
+            } catch (FileNotFoundException e) {
+                log.warn("上传整个文件失败，原因：{}", e.getMessage());
+                throw new RuntimeException("上传整个文件失败");
+            }
+        } else {
+            // 分块上传
+            List<FileShardVo> fileShardVos = fileVo.getFileShardVos();
+            Assert.isTrue(!CollectionUtils.isEmpty(fileShardVos), "请传入file或者分片的file实例");
+            fileShardVos
+            // 再逐个上传分片(1、上传到Minio 2、插入到数据库)
+            honeyMiniO.upload(bucketName, fileShardVo.getShardName(), fileShardVo.getFileShardStream(), contentType);
+            fileShardVo.setShardState(FileState.SUCCESS.getStateCode());
+            fileShardService.addFileShard(fileShardVo);
+            // 异步检查是否最后一块并修改文件状态
+            asyncTask.asyncCheckAndMerge(fileShardVo);
+        }
         return true;
     }
 
@@ -109,8 +136,12 @@ public class FileServiceImpl implements FileService {
         }
         // 创建文件信息
         FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
-        honeyMiniO.upload(bucketName, inputStream, contentType);
+        honeyMiniO.upload(bucketName, fileVo.getFileKey(), inputStream, contentType);
         return fileMapper.addFile(filePo);
+    }
+
+    public boolean upload(FileVo fileVo, InputStream inputStream, ContentType contentType) {
+        return upload(fileVo, inputStream, bucketName, contentType);
     }
 
 
@@ -240,6 +271,15 @@ public class FileServiceImpl implements FileService {
                 .stream()
                 .anyMatch(e -> e.getFileState() == FileState.SUCCESS.getStateCode()
                 );
+    }
+
+    private FileVo buildFileVo(FileUpload fileUpload) {
+        File file = fileUpload.getFile();
+        Asserts.notNull(file, "file");
+        FileVo fileVo = new FileVo();
+        String fileName = file.getName();
+        fileVo.setFileName(fileName);
+        return fileVo;
     }
 
 }
