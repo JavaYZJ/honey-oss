@@ -25,37 +25,42 @@ public class AsyncTask {
     @Autowired
     private HoneyMiniO honeyMiniO;
 
-    @Autowired
-    private FileShardService fileShardService;
-
-    @Autowired
-    private FileService fileService;
+    /**
+     * 异步上传
+     */
+    @Async
+    public void asyncUpload(FileShardService service, FileShardVo fileShardVo, String bucketName, ContentType contentType) {
+        // 上传至Minio
+        honeyMiniO.upload(bucketName, fileShardVo.getFileKey(), fileShardVo.getHoneyStream().getInputStream(), contentType);
+        // 上传成功后，修改该分片状态为 成功
+        service.updateFileShardState(fileShardVo.getUid(), FileState.SUCCESS);
+    }
 
     /**
      * 异步上传
      */
     @Async
-    public void asyncUpload(FileShardVo fileShardVo, String bucketName, ContentType contentType) {
+    public void asyncUpload(FileShardService service, FileVo fileVo, String bucketName, ContentType contentType) {
         // 上传至Minio
-        honeyMiniO.upload(bucketName, fileShardVo.getShardName(), fileShardVo.getFileShardStream(), contentType);
+        honeyMiniO.upload(bucketName, fileVo.getFileKey(), fileVo.getHoneyStream().getInputStream(), contentType);
         // 上传成功后，修改该分片状态为 成功
-        fileShardService.updateFileShardState(fileShardVo.getUid(), FileState.SUCCESS);
+        service.updateFileShardState(fileVo.getUid(), FileState.SUCCESS);
     }
 
     /**
      * 异步检查是不是最后一块并修改文件的状态为成功
      */
     @Async
-    public void asyncCheckAndMerge(FileShardVo fileShardVo) {
-        List<FileVo> fileInfos = fileService.getFileByFileKeys(Collections.singletonList(fileShardVo.getFileKey()));
+    public void asyncCheckAndMerge(FileService service, FileShardVo fileShardVo) {
+        List<FileVo> fileInfos = service.getFileByFileKeys(Collections.singletonList(fileShardVo.getFileKey()));
         if (!CollectionUtils.isEmpty(fileInfos)) {
             FileVo fileVo = fileInfos.get(0);
             // 文件总分片数
-            int shardSize = fileVo.getShardSize();
+            int shardSize = fileVo.getShardTotal();
             // 该文件的分片已经处于成功的数量
             long count = fileVo.getFileShardVos().stream().filter(e -> e.getShardState() == FileState.SUCCESS.getStateCode()).count();
             if (shardSize == count) {
-                fileService.updateFileState(fileShardVo.getFileKey(), FileState.SUCCESS);
+                service.updateFileState(fileShardVo.getFileKey(), FileState.SUCCESS);
                 // todo 后续引入告警系统，解决万一更新文件状态失败，告警开发人员及时定位
             }
         }

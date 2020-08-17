@@ -33,7 +33,6 @@ public class HoneyOssImpl implements HoneyOss {
         buildArgs(fileDto);
         fileDto.setShardTotal(0);
         fileDto.setShardSize(0);
-        fileRpcService.uploadFile(fileDto, bucketName, contentType);
     }
 
 

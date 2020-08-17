@@ -1,8 +1,8 @@
 package com.eboy.honey.oss.server.application.vo;
 
+import com.eboy.honey.oss.dto.HoneyStream;
 import lombok.Data;
 
-import java.io.File;
 import java.util.Date;
 
 /**
@@ -33,9 +33,9 @@ public class FileShardVo {
      */
     private int shardState;
     /**
-     * 文件分片
+     * 文件分片流
      */
-    private File shardFile;
+    private HoneyStream honeyStream;
     /**
      * 创建时间
      */

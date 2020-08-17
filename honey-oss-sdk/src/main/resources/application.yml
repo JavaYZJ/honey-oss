@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: honey-oss-sdk
+dubbo:
+  scan:
+    base-packages: com.eboy.honey.oss
+  protocol:
+    id: dubbo
+    name: dubbo
+    port: 20880
+  registry:
+    protocol: zookeeper
+    address: zookeeper://49.235.208.98:2181
+  application:
+    name: honey-oss-server
+    register-consumer: true
+
+
+

@@ -1,8 +1,8 @@
 package com.eboy.honey.oss.server.application.vo;
 
+import com.eboy.honey.oss.dto.HoneyStream;
 import lombok.Data;
 
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class FileVo {
     /**
      * 文件大小
      */
-    private int fileSize;
+    private long fileSize;
     /**
      * 文件相对路径
      */
@@ -40,15 +40,15 @@ public class FileVo {
     /**
      * 分片大小
      */
-    private int shardSize;
+    private long shardSize;
     /**
      * 分片总数
      */
     private int shardTotal;
     /**
-     * file
+     * 流
      */
-    private File file;
+    private HoneyStream honeyStream;
     /**
      * 分片信息
      */

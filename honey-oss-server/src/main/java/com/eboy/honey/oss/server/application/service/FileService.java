@@ -2,10 +2,10 @@ package com.eboy.honey.oss.server.application.service;
 
 
 import com.eboy.honey.oss.constant.FileState;
-import com.eboy.honey.oss.dto.FileUpload;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.apache.http.entity.ContentType;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
@@ -17,34 +17,65 @@ public interface FileService {
 
 
     /**
-     * 上传文件
+     * 上传文件(不分片)
      *
-     * @param fileUpload  文件实体
+     * @param file        文件实体
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否上传成功
      */
-    boolean uploadFile(FileUpload fileUpload, String bucketName, ContentType contentType);
+    boolean upload(File file, String bucketName, ContentType contentType);
 
     /**
-     * 异步上传文件
+     * 异步上传文件（不分片）
      *
-     * @param fileUpload      文件实体
+     * @param file        文件实体
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否上传成功
      */
-    boolean asyncUploadFile(FileUpload fileUpload, String bucketName, ContentType contentType);
+    boolean asyncUpload(File file, String bucketName, ContentType contentType);
 
     /**
-     * 文件上传
+     * 文件上传(不分片)
      *
-     * @param fileUpload      文件实体
+     * @param fileVo      文件实体
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否成功
      */
-    boolean upload(FileUpload fileUpload, String bucketName, ContentType contentType);
+    boolean upload(FileVo fileVo, String bucketName, ContentType contentType);
+
+    /**
+     * 异步文件上传(不分片)
+     *
+     * @param fileVo      文件实体
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    boolean asyncUpload(FileVo fileVo, String bucketName, ContentType contentType);
+
+
+    /**
+     * 分片上传
+     *
+     * @param fileVo      文件
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    boolean uploadByShard(FileVo fileVo, String bucketName, ContentType contentType);
+
+    /**
+     * 异步分片上传
+     *
+     * @param fileVo      文件
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    boolean asyncUploadByShard(FileVo fileVo, String bucketName, ContentType contentType);
 
     /**
      * 下载为url

@@ -1,29 +1,24 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
 import com.eboy.honey.oss.constant.FileState;
-import com.eboy.honey.oss.dto.FileUpload;
 import com.eboy.honey.oss.server.application.componet.AsyncTask;
 import com.eboy.honey.oss.server.application.dao.FileMapper;
 import com.eboy.honey.oss.server.application.po.FilePo;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.FileShardService;
+import com.eboy.honey.oss.server.application.utils.ArgsCheckUtil;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.entity.ContentType;
-import org.apache.http.util.Asserts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -54,111 +49,216 @@ public class FileServiceImpl implements FileService {
     private AsyncTask asyncTask;
 
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean uploadFile(FileUpload fileUpload, String bucketName, ContentType contentType) {
-        //
-
-        // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
-        if (secondTransCheck(fileUpload)) {
-            return true;
-        }
-        File file = fileVo.getFile();
-        if (file != null) {
-            try {
-                // 上传的是整个文件，不做分片处理
-                FileInputStream inputStream = new FileInputStream(file);
-                honeyMiniO.upload(bucketName, fileVo.getFileKey(), inputStream, contentType);
-                // 上传完毕，，添加信息到数据库
-                FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
-                filePo.setFileState(FileState.SUCCESS.getStateCode());
-                fileMapper.addFile(filePo);
-            } catch (FileNotFoundException e) {
-                log.warn("上传整个文件失败，原因：{}", e.getMessage());
-                throw new RuntimeException("上传整个文件失败");
-            }
-        } else {
-            // 分块上传
-            List<FileShardVo> fileShardVos = fileVo.getFileShardVos();
-            Assert.isTrue(!CollectionUtils.isEmpty(fileShardVos), "请传入file或者分片的file实例");
-            fileShardVos
-            // 再逐个上传分片(1、上传到Minio 2、插入到数据库)
-            honeyMiniO.upload(bucketName, fileShardVo.getShardName(), fileShardVo.getFileShardStream(), contentType);
-            fileShardVo.setShardState(FileState.SUCCESS.getStateCode());
-            fileShardService.addFileShard(fileShardVo);
-            // 异步检查是否最后一块并修改文件状态
-            asyncTask.asyncCheckAndMerge(fileShardVo);
-        }
-        return true;
-    }
-
     /**
-     * 异步上传文件
+     * 直接单个上传（不分片）
      *
      * @param fileVo      文件实体
-     * @param fileShardVo 分片
-     * @param bucketName  桶名
-     * @param contentType contentType
-     * @return 是否上传成功
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo,
-                                   String bucketName, ContentType contentType) {
-        // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
-        if (secondTransCheck(fileVo)) {
-            return true;
-        }
-        // 创建文件信息
-        FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
-        fileMapper.addFile(filePo);
-        // 插入到数据库
-        fileShardService.addFileShard(fileShardVo);
-        // 异步上传到Minio
-        asyncTask.asyncUpload(fileShardVo, bucketName, contentType);
-        return true;
-    }
-
-    /**
-     * 文件上传
-     *
-     * @param fileVo      文件实体
-     * @param inputStream 文件流
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否成功
      */
     @Override
-    public boolean upload(FileVo fileVo, InputStream inputStream, String bucketName, ContentType contentType) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean upload(FileVo fileVo, String bucketName, ContentType contentType) {
+        // 参数校验
+        ArgsCheckUtil.checkFile(fileVo, false);
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
         if (secondTransCheck(fileVo)) {
             return true;
         }
         // 创建文件信息
         FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
-        honeyMiniO.upload(bucketName, fileVo.getFileKey(), inputStream, contentType);
-        return fileMapper.addFile(filePo);
-    }
-
-    public boolean upload(FileVo fileVo, InputStream inputStream, ContentType contentType) {
-        return upload(fileVo, inputStream, bucketName, contentType);
-    }
-
-
-    public boolean uploadFile(FileVo fileVo, FileShardVo fileShardVo, ContentType contentType) {
-        return uploadFile(fileVo, fileShardVo, bucketName, contentType);
+        // 插入到数据库
+        filePo.setFileState(FileState.SUCCESS.getStateCode());
+        fileMapper.addFile(filePo);
+        // 上传到MiniO
+        honeyMiniO.upload(bucketName, fileVo.getFileKey(), fileVo.getHoneyStream().getInputStream(), contentType);
+        return true;
     }
 
     /**
-     * 异步上传文件
+     * 异步文件上传(不分片)
      *
      * @param fileVo      文件实体
-     * @param fileShardVo 分片
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    @Override
+    public boolean asyncUpload(FileVo fileVo, String bucketName, ContentType contentType) {
+        // TODO 优化引入异步处理策略（1、http接口回调 2、MQ接受 3、短信等消息接受）
+        // 参数校验
+        ArgsCheckUtil.checkFile(fileVo, false);
+        // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
+        if (secondTransCheck(fileVo)) {
+            return true;
+        }
+        // 创建文件信息
+        FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
+        // 插入到数据库
+        fileMapper.addFile(filePo);
+        // 异步上传
+        asyncTask.asyncUpload(fileShardService, fileVo, bucketName, contentType);
+        return true;
+    }
+
+    /**
+     * 异步文件上传(不分片)
+     *
+     * @param fileVo      文件实体
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    public boolean asyncUpload(FileVo fileVo, ContentType contentType) {
+        // TODO 优化引入异步处理策略（1、http接口回调 2、MQ接受 3、短信等消息接受）
+        return asyncUpload(fileVo, bucketName, contentType);
+    }
+
+    /**
+     * 分片上传
+     *
+     * @param fileVo      文件
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean uploadByShard(FileVo fileVo, String bucketName, ContentType contentType) {
+        // 参数校验
+        ArgsCheckUtil.checkFile(fileVo, true);
+        // 是不是第一次分片上传
+        boolean isExit = fileMapper.getFileByFileKeys(Collections.singletonList(fileVo.getFileKey())).size() > 0;
+        if (!isExit) {
+            // 创建文件信息
+            FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
+            // 插入到数据库
+            fileMapper.addFile(filePo);
+        }
+        // 上传分片
+        FileShardVo fileShardVo = fileVo.getFileShardVos().get(0);
+        fileShardService.addFileShard(fileShardVo);
+        // 上传至MiniO
+        honeyMiniO.upload(bucketName, fileShardVo.getFileKey(), fileShardVo.getHoneyStream().getInputStream(), contentType);
+        return true;
+    }
+
+    /**
+     * 分片上传
+     *
+     * @param fileVo      文件
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    public boolean uploadByShard(FileVo fileVo, ContentType contentType) {
+        return uploadByShard(fileVo, bucketName, contentType);
+    }
+
+    /**
+     * 异步分片上传
+     *
+     * @param fileVo      文件
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    @Override
+    public boolean asyncUploadByShard(FileVo fileVo, String bucketName, ContentType contentType) {
+        // TODO 引入异步处理策略（1、http接口回调 2、MQ接受 3、短信等消息接受）
+        // 参数校验
+        ArgsCheckUtil.checkFile(fileVo, true);
+        // 是不是第一次分片上传
+        boolean isExit = fileMapper.getFileByFileKeys(Collections.singletonList(fileVo.getFileKey())).size() > 0;
+        if (!isExit) {
+            // 创建文件信息
+            FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
+            // 插入到数据库
+            fileMapper.addFile(filePo);
+        }
+        // 上传分片
+        FileShardVo fileShardVo = fileVo.getFileShardVos().get(0);
+        fileShardService.addFileShard(fileShardVo);
+        // 异步上传分片
+        asyncTask.asyncUpload(fileShardService, fileShardVo, bucketName, contentType);
+        return true;
+    }
+
+
+    /**
+     * 异步分片上传
+     *
+     * @param fileVo      文件
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    public boolean asyncUploadByShard(FileVo fileVo, ContentType contentType) {
+        return asyncUpload(fileVo, bucketName, contentType);
+    }
+
+    /**
+     * 直接单个上传（不分片）
+     *
+     * @param fileVo      文件实体
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    public boolean upload(FileVo fileVo, ContentType contentType) {
+        return upload(fileVo, bucketName, contentType);
+    }
+
+
+    /**
+     * 异步上传文件（不分片）
+     *
+     * @param file        file
+     * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否上传成功
      */
-    public boolean asyncUploadFile(FileVo fileVo, FileShardVo fileShardVo, ContentType contentType) {
-        return asyncUploadFile(fileVo, fileShardVo, bucketName, contentType);
+    @Override
+    public boolean asyncUpload(File file, String bucketName, ContentType contentType) {
+        // 转换成fileVo
+        FileVo fileVo = BeanConvertUtil.convertFileVo(file);
+        return asyncUpload(fileVo, bucketName, contentType);
+    }
+
+    /**
+     * 异步上传文件（不分片）
+     *
+     * @param file        file
+     * @param contentType contentType
+     * @return 是否上传成功
+     */
+    public boolean asyncUpload(File file, ContentType contentType) {
+        // 转换成fileVo
+        FileVo fileVo = BeanConvertUtil.convertFileVo(file);
+        return asyncUpload(fileVo, bucketName, contentType);
+    }
+
+    /**
+     * 文件上传（不分片）
+     *
+     * @param file        文件实体
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    @Override
+    public boolean upload(File file, String bucketName, ContentType contentType) {
+        // 转换成fileVo
+        FileVo fileVo = BeanConvertUtil.convertFileVo(file);
+        return upload(fileVo, bucketName, contentType);
+    }
+
+    /**
+     * 文件上传（不分片）
+     *
+     * @param file        文件实体
+     * @param contentType contentType
+     * @return 是否成功
+     */
+    public boolean upload(File file, ContentType contentType) {
+        return upload(file, bucketName, contentType);
     }
 
     /**
@@ -271,15 +371,6 @@ public class FileServiceImpl implements FileService {
                 .stream()
                 .anyMatch(e -> e.getFileState() == FileState.SUCCESS.getStateCode()
                 );
-    }
-
-    private FileVo buildFileVo(FileUpload fileUpload) {
-        File file = fileUpload.getFile();
-        Asserts.notNull(file, "file");
-        FileVo fileVo = new FileVo();
-        String fileName = file.getName();
-        fileVo.setFileName(fileName);
-        return fileVo;
     }
 
 }

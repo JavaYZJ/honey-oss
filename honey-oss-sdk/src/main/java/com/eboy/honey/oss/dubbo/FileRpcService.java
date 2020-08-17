@@ -2,8 +2,6 @@ package com.eboy.honey.oss.dubbo;
 
 
 import com.eboy.honey.oss.dto.FileDto;
-import com.eboy.honey.oss.dto.FileShardDto;
-import org.apache.http.entity.ContentType;
 
 import java.util.List;
 
@@ -13,26 +11,6 @@ import java.util.List;
  */
 public interface FileRpcService {
 
-    /**
-     * 上传文件
-     *
-     * @param fileDto      文件实体
-     * @param fileShardDto 分片信息
-     * @param bucketName   桶名
-     * @param contentType  contentType
-     * @return 是否上传成功
-     */
-    boolean uploadFileShard(FileDto fileDto, FileShardDto fileShardDto, String bucketName, ContentType contentType);
-
-    /**
-     * 上传文件
-     *
-     * @param fileDto     文件实体
-     * @param bucketName  桶名
-     * @param contentType contentType
-     * @return 是否成功
-     */
-    boolean uploadFile(FileDto fileDto, String bucketName, ContentType contentType);
 
     /**
      * 根据ids查找文件

@@ -1,7 +1,14 @@
 package com.eboy.honey.oss.server.application.utils;
 
+import com.eboy.honey.oss.dto.HoneyStream;
+import com.eboy.honey.oss.server.application.vo.FileVo;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +16,7 @@ import java.util.List;
  * @author yangzhijie
  * @date 2020/7/31 15:27
  */
+@Slf4j
 public class BeanConvertUtil {
 
     /**
@@ -40,5 +48,42 @@ public class BeanConvertUtil {
             ts.add(convert(s, clazz));
         }
         return ts;
+    }
+
+    /**
+     * File转换成FileVo
+     *
+     * @param file file
+     * @return fileVo
+     */
+    public static FileVo convertFileVo(File file) {
+        FileVo fileVo = new FileVo();
+        try {
+            // 设置uid
+            fileVo.setUid(HoneyFileUtil.get32Uid());
+            // 设置文件名
+            String fileName = file.getName();
+            fileVo.setFileName(fileName);
+            // 设置fileKey
+            FileInputStream inputStream = new FileInputStream(file);
+            String fileKey = HoneyFileUtil.getFileKey(inputStream);
+            fileVo.setFileKey(fileKey);
+            // 设置流
+            fileVo.setHoneyStream(new HoneyStream(inputStream));
+            // 设置文件格式
+            String fileSuffix = HoneyFileUtil.getFileSuffix(fileName);
+            fileVo.setFileSuffix(fileSuffix);
+            // 设置文件大小
+            long fileSize = HoneyFileUtil.getFileSize(inputStream);
+            fileVo.setFileSize(fileSize);
+            // 设置分片总数
+            fileVo.setShardTotal(0);
+            // 设置分片大小
+            fileVo.setShardSize(0);
+            return fileVo;
+        } catch (FileNotFoundException e) {
+            log.warn("主服务构建FileVo失败，原因：{}", e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 }

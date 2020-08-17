@@ -34,7 +34,7 @@ public class FilePo {
     /**
      * 文件大小
      */
-    private int fileSize;
+    private long fileSize;
     /**
      * 文件相对路径
      */
@@ -42,7 +42,7 @@ public class FilePo {
     /**
      * 分片大小
      */
-    private int shardSize;
+    private long shardSize;
     /**
      * 分片总数
      */

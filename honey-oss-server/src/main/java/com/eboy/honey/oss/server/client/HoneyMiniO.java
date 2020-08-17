@@ -28,14 +28,14 @@ public class HoneyMiniO {
      * 上传
      *
      * @param bucketName  桶名
-     * @param objectName  对象名
+     * @param fileKey     对象名
      * @param filePath    文件路径
      * @param contentType contentTyp
      */
-    public void upload(String bucketName, String objectName, String filePath, ContentType contentType) {
+    public void upload(String bucketName, String fileKey, String filePath, ContentType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, filePath, contentType.toString());
+            minioClient.putObject(bucketName, fileKey, filePath, contentType.toString());
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -45,14 +45,14 @@ public class HoneyMiniO {
     /**
      * 上传
      *
-     * @param objectName  对象名
+     * @param fileKey     对象名
      * @param filePath    文件路径
      * @param contentType contentType
      */
-    public void upload(String objectName, String filePath, ContentType contentType) {
+    public void upload(String fileKey, String filePath, ContentType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, filePath, contentType.toString());
+            minioClient.putObject(bucketName, fileKey, filePath, contentType.toString());
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -63,14 +63,14 @@ public class HoneyMiniO {
      * 上传
      *
      * @param bucketName  桶名
-     * @param objectName  对象名
+     * @param fileKey     对象名
      * @param inputStream 输入流
      * @param contentType contentType
      */
-    public void upload(String bucketName, String objectName, InputStream inputStream, ContentType contentType) {
+    public void upload(String bucketName, String fileKey, InputStream inputStream, ContentType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
+            minioClient.putObject(bucketName, fileKey, inputStream, contentType.toString());
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -80,14 +80,14 @@ public class HoneyMiniO {
     /**
      * 上传
      *
-     * @param objectName  对象名
+     * @param fileKey     对象名
      * @param inputStream 输入流
      * @param contentType contentType
      */
-    public void upload(String objectName, InputStream inputStream, ContentType contentType) {
+    public void upload(String fileKey, InputStream inputStream, ContentType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
+            minioClient.putObject(bucketName, fileKey, inputStream, contentType.toString());
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -97,16 +97,16 @@ public class HoneyMiniO {
     /**
      * 上传
      *
-     * @param objectName  对象名
+     * @param fileKey     对象名
      * @param inputStream 输入流
      * @param contentType contentType
      * @return string url
      */
-    public String uploadAndGetUrl(String objectName, InputStream inputStream, ContentType contentType) {
+    public String uploadAndGetUrl(String fileKey, InputStream inputStream, ContentType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
-            return minioClient.getObjectUrl(bucketName, objectName);
+            minioClient.putObject(bucketName, fileKey, inputStream, contentType.toString());
+            return minioClient.getObjectUrl(bucketName, fileKey);
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -117,16 +117,16 @@ public class HoneyMiniO {
      * 上传
      *
      * @param bucketName  桶名
-     * @param objectName  对象名
+     * @param fileKey     对象名
      * @param inputStream 输入流
      * @param contentType contentType
      * @return string url 直接点击该url即可在浏览器中下载文件
      */
-    public String uploadAndGetUrl(String bucketName, String objectName, InputStream inputStream, ContentType contentType) {
+    public String uploadAndGetUrl(String bucketName, String fileKey, InputStream inputStream, ContentType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
-            return minioClient.getObjectUrl(bucketName, objectName);
+            minioClient.putObject(bucketName, fileKey, inputStream, contentType.toString());
+            return minioClient.getObjectUrl(bucketName, fileKey);
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -168,12 +168,12 @@ public class HoneyMiniO {
      * 下载为文件流
      *
      * @param bucketName 桶名
-     * @param objectName 对象名
+     * @param fileKey    对象名
      * @return InputStream 文件流
      */
-    public InputStream downAsStream(String bucketName, String objectName) {
+    public InputStream downAsStream(String bucketName, String fileKey) {
         try {
-            return minioClient.getObject(bucketName, objectName);
+            return minioClient.getObject(bucketName, fileKey);
         } catch (Exception e) {
             log.warn("下载失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -183,12 +183,12 @@ public class HoneyMiniO {
     /**
      * 下载为文件流
      *
-     * @param objectName 对象名
+     * @param fileKey 对象名
      * @return InputStream 文件流
      */
-    public InputStream downAsStream(String objectName) {
+    public InputStream downAsStream(String fileKey) {
         try {
-            return minioClient.getObject(bucketName, objectName);
+            return minioClient.getObject(bucketName, fileKey);
         } catch (Exception e) {
             log.warn("下载失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -199,12 +199,12 @@ public class HoneyMiniO {
      * 下载为url
      *
      * @param bucketName 桶名
-     * @param objectName 对象名
+     * @param fileKey    对象名
      * @return string 文件的url
      */
-    public String downAsUrl(String bucketName, String objectName) {
+    public String downAsUrl(String bucketName, String fileKey) {
         try {
-            return minioClient.presignedGetObject(bucketName, objectName);
+            return minioClient.presignedGetObject(bucketName, fileKey);
         } catch (Exception e) {
             log.warn("下载失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -214,12 +214,12 @@ public class HoneyMiniO {
     /**
      * 下载为url
      *
-     * @param objectName 对象名
+     * @param fileKey 对象名
      * @return string 文件的url
      */
-    public String downAsUrl(String objectName) {
+    public String downAsUrl(String fileKey) {
         try {
-            return minioClient.presignedGetObject(bucketName, objectName);
+            return minioClient.presignedGetObject(bucketName, fileKey);
         } catch (Exception e) {
             log.warn("下载失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);

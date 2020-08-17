@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://49.235.39.179:3305/honey-oss?useUnicode=true&useSSL=false&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&characterEncoding=utf8
+    data-username: root
+    data-password: yangzhijie@cvte.com
+  application:
+    name:
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:/META-INF/mapper/*.xml
+honey:
+  oss:
+    minio:
+      url: https://play.min.io
+      accesskey: Q3AM3UQ867SPQQA43P2F
+      secretkey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+      bucketName: honey-oss
+dubbo:
+  scan:
+    base-packages: com.eboy.honey.oss.server
+  protocol:
+    id: dubbo
+    name: dubbo
+    port: 20880
+  registry:
+    protocol: zookeeper
+    address: zookeeper://49.235.208.98:2181
+  application:
+    name: honey-oss-server
