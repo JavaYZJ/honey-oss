@@ -53,10 +53,29 @@ public class HoneyFileUtil {
      */
     public static String getFileKey(InputStream inputStream) {
         try {
-            return DigestUtils.md5DigestAsHex(inputStream);
+            ByteArrayOutputStream stream = cloneInputStream(inputStream);
+            InputStream var1 = new ByteArrayInputStream(stream.toByteArray());
+            return DigestUtils.md5DigestAsHex(var1);
         } catch (IOException e) {
             log.warn("获取文件的FileKey失败，原因：{}", e.getMessage());
             throw new RuntimeException(e);
+        }
+    }
+
+
+    public static ByteArrayOutputStream cloneInputStream(InputStream input) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = input.read(buffer)) > -1) {
+                baos.write(buffer, 0, len);
+            }
+            baos.flush();
+            return baos;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -116,9 +135,9 @@ public class HoneyFileUtil {
      * @param inputStream 文件流
      * @return 文件字节大小
      */
-    public static long getFileSize(InputStream inputStream) {
+    public static long getFileSize(FileInputStream inputStream) {
         try {
-            return inputStream.available();
+            return inputStream.getChannel().size();
         } catch (IOException e) {
             log.warn("获取文件流大小失败，原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -147,6 +166,6 @@ public class HoneyFileUtil {
         fileDto.setFileKey(fileKey);
         fileDto.setHoneyStream(new HoneyStream(inputStream));
         // 文件大小
-        fileDto.setFileSize(HoneyFileUtil.getFileSize(inputStream));
+        fileDto.setFileSize(HoneyFileUtil.getFileSize((FileInputStream) inputStream));
     }
 }

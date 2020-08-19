@@ -6,8 +6,8 @@ import com.eboy.honey.oss.server.application.service.FileShardService;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
-import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -29,7 +29,7 @@ public class AsyncTask {
      * 异步上传
      */
     @Async
-    public void asyncUpload(FileShardService service, FileShardVo fileShardVo, String bucketName, ContentType contentType) {
+    public void asyncUpload(FileShardService service, FileShardVo fileShardVo, String bucketName, MediaType contentType) {
         // 上传至Minio
         honeyMiniO.upload(bucketName, fileShardVo.getFileKey(), fileShardVo.getHoneyStream().getInputStream(), contentType);
         // 上传成功后，修改该分片状态为 成功
@@ -40,7 +40,7 @@ public class AsyncTask {
      * 异步上传
      */
     @Async
-    public void asyncUpload(FileShardService service, FileVo fileVo, String bucketName, ContentType contentType) {
+    public void asyncUpload(FileShardService service, FileVo fileVo, String bucketName, MediaType contentType) {
         // 上传至Minio
         honeyMiniO.upload(bucketName, fileVo.getFileKey(), fileVo.getHoneyStream().getInputStream(), contentType);
         // 上传成功后，修改该分片状态为 成功

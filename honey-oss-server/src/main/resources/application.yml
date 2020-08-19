@@ -3,8 +3,8 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://49.235.39.179:3305/honey-oss?useUnicode=true&useSSL=false&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&characterEncoding=utf8
-    data-username: root
-    data-password: yangzhijie@cvte.com
+    username: root
+    password: yangzhijie@cvte.com
   application:
     name:
 mybatis:
@@ -17,7 +17,7 @@ honey:
       url: https://play.min.io
       accesskey: Q3AM3UQ867SPQQA43P2F
       secretkey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
-      bucketName: honey-oss
+      bucketName: honey-oss-dev
 dubbo:
   scan:
     base-packages: com.eboy.honey.oss.server

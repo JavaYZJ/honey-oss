@@ -57,19 +57,20 @@ public class BeanConvertUtil {
      * @return fileVo
      */
     public static FileVo convertFileVo(File file) {
-        FileVo fileVo = new FileVo();
         try {
+            FileVo fileVo = new FileVo();
+            FileInputStream inputStream = new FileInputStream(file);
             // 设置uid
             fileVo.setUid(HoneyFileUtil.get32Uid());
+            // 设置流
+            HoneyStream honeyStream = new HoneyStream(inputStream);
+            fileVo.setHoneyStream(honeyStream);
             // 设置文件名
             String fileName = file.getName();
             fileVo.setFileName(fileName);
             // 设置fileKey
-            FileInputStream inputStream = new FileInputStream(file);
-            String fileKey = HoneyFileUtil.getFileKey(inputStream);
+            String fileKey = HoneyFileUtil.getFileKey(new FileInputStream(file));
             fileVo.setFileKey(fileKey);
-            // 设置流
-            fileVo.setHoneyStream(new HoneyStream(inputStream));
             // 设置文件格式
             String fileSuffix = HoneyFileUtil.getFileSuffix(fileName);
             fileVo.setFileSuffix(fileSuffix);

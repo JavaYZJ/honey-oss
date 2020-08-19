@@ -3,7 +3,7 @@ package com.eboy.honey.oss.server.application.service;
 
 import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.server.application.vo.FileVo;
-import org.apache.http.entity.ContentType;
+import org.springframework.http.MediaType;
 
 import java.io.File;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ public interface FileService {
      * @param contentType contentType
      * @return 是否上传成功
      */
-    boolean upload(File file, String bucketName, ContentType contentType);
+    boolean upload(File file, String bucketName, MediaType contentType);
 
     /**
      * 异步上传文件（不分片）
@@ -34,7 +34,7 @@ public interface FileService {
      * @param contentType contentType
      * @return 是否上传成功
      */
-    boolean asyncUpload(File file, String bucketName, ContentType contentType);
+    boolean asyncUpload(File file, String bucketName, MediaType contentType);
 
     /**
      * 文件上传(不分片)
@@ -44,7 +44,7 @@ public interface FileService {
      * @param contentType contentType
      * @return 是否成功
      */
-    boolean upload(FileVo fileVo, String bucketName, ContentType contentType);
+    boolean upload(FileVo fileVo, String bucketName, MediaType contentType);
 
     /**
      * 异步文件上传(不分片)
@@ -54,7 +54,7 @@ public interface FileService {
      * @param contentType contentType
      * @return 是否成功
      */
-    boolean asyncUpload(FileVo fileVo, String bucketName, ContentType contentType);
+    boolean asyncUpload(FileVo fileVo, String bucketName, MediaType contentType);
 
 
     /**
@@ -65,7 +65,7 @@ public interface FileService {
      * @param contentType contentType
      * @return 是否成功
      */
-    boolean uploadByShard(FileVo fileVo, String bucketName, ContentType contentType);
+    boolean uploadByShard(FileVo fileVo, String bucketName, MediaType contentType);
 
     /**
      * 异步分片上传
@@ -75,25 +75,25 @@ public interface FileService {
      * @param contentType contentType
      * @return 是否成功
      */
-    boolean asyncUploadByShard(FileVo fileVo, String bucketName, ContentType contentType);
+    boolean asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType);
 
     /**
      * 下载为url
      *
      * @param bucketName 桶名
-     * @param objectName 对象名
+     * @param fileKey    对象名
      * @return string 文件的url
      */
-    String downAsUrl(String bucketName, String objectName);
+    String downAsUrl(String bucketName, String fileKey);
 
     /**
      * 下载为文件流
      *
      * @param bucketName 桶名
-     * @param objectName 对象名
+     * @param fileKey    对象名
      * @return InputStream 文件流
      */
-    InputStream downAsStream(String bucketName, String objectName);
+    InputStream downAsStream(String bucketName, String fileKey);
 
     /**
      * 根据ids查找文件
