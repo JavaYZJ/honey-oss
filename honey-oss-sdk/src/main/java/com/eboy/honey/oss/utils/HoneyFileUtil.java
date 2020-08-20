@@ -2,6 +2,7 @@ package com.eboy.honey.oss.utils;
 
 import com.eboy.honey.oss.dto.FileDto;
 import com.eboy.honey.oss.dto.HoneyStream;
+import com.sun.istack.internal.NotNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
@@ -9,6 +10,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -24,7 +26,7 @@ public class HoneyFileUtil {
      * @param file 文件
      * @return fileKey
      */
-    public static String getFileKey(File file) {
+    public static String getFileKey(@NotNull File file) {
         try {
             FileInputStream inputStream = new FileInputStream(file);
             return getFileKey(inputStream);
@@ -40,7 +42,7 @@ public class HoneyFileUtil {
      * @param filePath 文件路径
      * @return fileKey
      */
-    public static String getFileKey(String filePath) {
+    public static String getFileKey(@NotNull String filePath) {
         File file = new File(filePath);
         return getFileKey(file);
     }
@@ -51,10 +53,10 @@ public class HoneyFileUtil {
      * @param inputStream 文件流
      * @return fileKey
      */
-    public static String getFileKey(InputStream inputStream) {
+    public static String getFileKey(@NotNull InputStream inputStream) {
         try {
             ByteArrayOutputStream stream = cloneInputStream(inputStream);
-            InputStream var1 = new ByteArrayInputStream(stream.toByteArray());
+            InputStream var1 = new ByteArrayInputStream(Objects.requireNonNull(stream).toByteArray());
             return DigestUtils.md5DigestAsHex(var1);
         } catch (IOException e) {
             log.warn("获取文件的FileKey失败，原因：{}", e.getMessage());
@@ -62,8 +64,56 @@ public class HoneyFileUtil {
         }
     }
 
+    /**
+     * 构建minio上传需要的objectName(唯一)
+     *
+     * @param fileKey 文件fileKey
+     * @return objectName
+     */
+    public static String buildObjectNameByFileKey(@NotNull String fileName, @NotNull String fileKey) {
+        StringBuilder sb = new StringBuilder(fileName);
+        StringBuilder sb2 = new StringBuilder();
+        sb2.append("(");
+        sb2.append(fileKey);
+        sb2.append(")");
+        int index = sb.lastIndexOf(".");
+        sb.insert(index, sb2);
+        return sb.toString();
+    }
 
-    public static ByteArrayOutputStream cloneInputStream(InputStream input) {
+    /**
+     * 构建分片objectName
+     *
+     * @param ShardName  分片名
+     * @param shardIndex 分片索引
+     * @return 分片objectName
+     */
+    public static String buildShardObjectName(@NotNull String ShardName, @NotNull int shardIndex) {
+        StringBuilder sb = new StringBuilder(ShardName);
+        return sb.append("_").append(shardIndex).toString();
+    }
+
+    /**
+     * 将inputStream写入本地
+     *
+     * @param destination 本地文件目录
+     * @param input       文件流
+     */
+    public static void writeToLocal(String destination, InputStream input) {
+        int index;
+        byte[] bytes = new byte[1024];
+        try (FileOutputStream downloadFile = new FileOutputStream(destination)) {
+            while ((index = input.read(bytes)) != -1) {
+                downloadFile.write(bytes, 0, index);
+                downloadFile.flush();
+            }
+        } catch (IOException e) {
+            log.warn("File inputStream write fail,reason:{}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ByteArrayOutputStream cloneInputStream(@NotNull InputStream input) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
@@ -79,7 +129,7 @@ public class HoneyFileUtil {
         }
     }
 
-    public static InputStream getInputStream(FileDto fileDto) throws FileNotFoundException {
+    public static InputStream getInputStream(@NotNull FileDto fileDto) throws FileNotFoundException {
         InputStream inputStream = null;
         String filePath = fileDto.getFilePath();
         if (filePath != null) {
@@ -113,7 +163,7 @@ public class HoneyFileUtil {
      * @param fileName 文件名
      * @return 后缀名
      */
-    public static String getFileSuffix(String fileName) {
+    public static String getFileSuffix(@NotNull String fileName) {
         Assert.isTrue(!fileName.isEmpty(), "文件名为空");
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
@@ -124,7 +174,7 @@ public class HoneyFileUtil {
      * @param fileName 文件名
      * @return 文件名（不带后缀）
      */
-    public static String getFilePrefix(String fileName) {
+    public static String getFilePrefix(@NotNull String fileName) {
         Assert.isTrue(!fileName.isEmpty(), "文件名为空");
         return fileName.substring(0, fileName.lastIndexOf("."));
     }
@@ -135,7 +185,7 @@ public class HoneyFileUtil {
      * @param inputStream 文件流
      * @return 文件字节大小
      */
-    public static long getFileSize(FileInputStream inputStream) {
+    public static long getFileSize(@NotNull FileInputStream inputStream) {
         try {
             return inputStream.getChannel().size();
         } catch (IOException e) {
@@ -150,7 +200,7 @@ public class HoneyFileUtil {
      * @param fileDto 文件实体
      */
     @SneakyThrows
-    public static void buildArgs(FileDto fileDto) {
+    public static void buildArgs(@NotNull FileDto fileDto) {
         // uid
         String uid = get32Uid();
         fileDto.setUid(uid);

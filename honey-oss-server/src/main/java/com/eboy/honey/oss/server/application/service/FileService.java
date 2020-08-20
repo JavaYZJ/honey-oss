@@ -90,10 +90,19 @@ public interface FileService {
      * 下载为文件流
      *
      * @param bucketName 桶名
-     * @param fileKey    对象名
+     * @param fileKey    fileKey
      * @return InputStream 文件流
      */
     InputStream downAsStream(String bucketName, String fileKey);
+
+    /**
+     * 下载至本地
+     *
+     * @param bucketName   桶名
+     * @param fileKey      fileKey
+     * @param fileDownPath 指定下载到本地的文件目录
+     */
+    void down2Local(String bucketName, String fileKey, String fileDownPath);
 
     /**
      * 根据ids查找文件

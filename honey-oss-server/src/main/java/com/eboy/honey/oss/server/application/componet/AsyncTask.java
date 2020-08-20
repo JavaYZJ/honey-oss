@@ -6,6 +6,7 @@ import com.eboy.honey.oss.server.application.service.FileShardService;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
@@ -31,6 +32,7 @@ public class AsyncTask {
     @Async
     public void asyncUpload(FileShardService service, FileShardVo fileShardVo, String bucketName, MediaType contentType) {
         // 上传至Minio
+        String objectName = HoneyFileUtil.buildShardObjectName(fileShardVo.getShardName(), fileShardVo.getShardIndex());
         honeyMiniO.upload(bucketName, fileShardVo.getFileKey(), fileShardVo.getHoneyStream().getInputStream(), contentType);
         // 上传成功后，修改该分片状态为 成功
         service.updateFileShardState(fileShardVo.getUid(), FileState.SUCCESS);
@@ -42,13 +44,16 @@ public class AsyncTask {
     @Async
     public void asyncUpload(FileShardService service, FileVo fileVo, String bucketName, MediaType contentType) {
         // 上传至Minio
-        honeyMiniO.upload(bucketName, fileVo.getFileKey(), fileVo.getHoneyStream().getInputStream(), contentType);
+        String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileVo.getFileName(), fileVo.getFileKey());
+        honeyMiniO.upload(bucketName, objectName, fileVo.getHoneyStream().getInputStream(), contentType);
         // 上传成功后，修改该分片状态为 成功
         service.updateFileShardState(fileVo.getUid(), FileState.SUCCESS);
     }
 
     /**
      * 异步检查是不是最后一块并修改文件的状态为成功
+     *
+     * @deprecated
      */
     @Async
     public void asyncCheckAndMerge(FileService service, FileShardVo fileShardVo) {

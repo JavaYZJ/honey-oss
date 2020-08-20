@@ -11,6 +11,7 @@ import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,7 +74,8 @@ public class FileServiceImpl implements FileService {
         filePo.setFileState(FileState.SUCCESS.getStateCode());
         fileMapper.addFile(filePo);
         // 上传到MiniO
-        honeyMiniO.upload(bucketName, fileVo.getFileName(), fileVo.getHoneyStream().getInputStream(), contentType);
+        String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileVo.getFileName(), fileVo.getFileKey());
+        honeyMiniO.upload(bucketName, objectName, fileVo.getHoneyStream().getInputStream(), contentType);
         return true;
     }
 
@@ -140,7 +142,8 @@ public class FileServiceImpl implements FileService {
         FileShardVo fileShardVo = fileVo.getFileShardVos().get(0);
         fileShardService.addFileShard(fileShardVo);
         // 上传至MiniO
-        honeyMiniO.upload(bucketName, fileShardVo.getFileKey(), fileShardVo.getHoneyStream().getInputStream(), contentType);
+        String objectName = HoneyFileUtil.buildShardObjectName(fileShardVo.getShardName(), fileShardVo.getShardIndex());
+        honeyMiniO.upload(bucketName, objectName, fileShardVo.getHoneyStream().getInputStream(), contentType);
         return true;
     }
 
@@ -151,6 +154,7 @@ public class FileServiceImpl implements FileService {
      * @param contentType contentType
      * @return 是否成功
      */
+    @Transactional(rollbackFor = Exception.class)
     public boolean uploadByShard(FileVo fileVo, MediaType contentType) {
         return uploadByShard(fileVo, bucketName, contentType);
     }
@@ -203,6 +207,7 @@ public class FileServiceImpl implements FileService {
      * @param contentType contentType
      * @return 是否成功
      */
+    @Transactional(rollbackFor = Exception.class)
     public boolean upload(FileVo fileVo, MediaType contentType) {
         return upload(fileVo, bucketName, contentType);
     }
@@ -259,6 +264,7 @@ public class FileServiceImpl implements FileService {
      * @param contentType contentType
      * @return 是否成功
      */
+    @Transactional(rollbackFor = Exception.class)
     public boolean upload(File file, MediaType contentType) {
         return upload(file, bucketName, contentType);
     }
@@ -266,10 +272,11 @@ public class FileServiceImpl implements FileService {
     /**
      * 下载为url
      *
-     * @param objectName 对象名
+     * @param fileKey 文件fileKey
      * @return string 文件的url
      */
-    public String downAsUrl(String objectName) {
+    public String downAsUrl(String fileKey) {
+        String objectName = objectName(fileKey);
         return honeyMiniO.downAsUrl(objectName);
     }
 
@@ -277,33 +284,74 @@ public class FileServiceImpl implements FileService {
      * 下载为url
      *
      * @param bucketName 桶名
-     * @param fileKey    对象名
+     * @param fileKey    文件fileKey
      * @return string 文件的url
      */
     @Override
     public String downAsUrl(String bucketName, String fileKey) {
-        return honeyMiniO.downAsUrl(bucketName, fileKey);
+        String objectName = objectName(fileKey);
+        return honeyMiniO.downAsUrl(bucketName, objectName);
+    }
+
+    /**
+     * 下载为url
+     *
+     * @param bucketName 桶名
+     * @param fileKey    文件fileKey
+     * @param expires    过期时间(秒)
+     * @return string 文件的url
+     */
+    public String downAsUrl(String bucketName, String fileKey, Integer expires) {
+        String objectName = objectName(fileKey);
+        return honeyMiniO.downAsUrl(bucketName, objectName, expires);
     }
 
     /**
      * 下载为文件流
      *
      * @param bucketName 桶名
-     * @param fileKey    对象名
+     * @param fileKey    文件fileKey
      * @return InputStream 文件流
      */
     @Override
     public InputStream downAsStream(String bucketName, String fileKey) {
-        return honeyMiniO.downAsStream(bucketName, fileKey);
+        String objectName = objectName(fileKey);
+        return honeyMiniO.downAsStream(bucketName, objectName);
+    }
+
+    /**
+     * 下载至本地
+     *
+     * @param bucketName   桶名
+     * @param fileKey      文件钥匙
+     * @param fileDownPath 指定下载到本地的文件目录
+     */
+    @Override
+    public void down2Local(String bucketName, String fileKey, String fileDownPath) {
+        String objectName = objectName(fileKey);
+        honeyMiniO.down2Local(bucketName, objectName, fileDownPath);
+    }
+
+    /**
+     * 下载至本地
+     *
+     * @param fileKey      文件钥匙
+     * @param fileDownPath 指定下载到本地的文件目录
+     */
+    public void down2Local(String fileKey, String fileDownPath) {
+        String objectName = objectName(fileKey);
+        honeyMiniO.down2Local(bucketName, objectName, fileDownPath);
+
     }
 
     /**
      * 下载为文件流
      *
-     * @param objectName 对象名
+     * @param fileKey 文件fileKey
      * @return InputStream 文件流
      */
-    public InputStream downAsStream(String objectName) {
+    public InputStream downAsStream(String fileKey) {
+        String objectName = objectName(fileKey);
         return honeyMiniO.downAsStream(objectName);
     }
 
@@ -373,6 +421,21 @@ public class FileServiceImpl implements FileService {
                 .stream()
                 .anyMatch(e -> e.getFileState() == FileState.SUCCESS.getStateCode()
                 );
+    }
+
+    /**
+     * 通过fileKey构建objectName
+     *
+     * @param fileKey 文件fileKey
+     * @return objectName
+     */
+    private String objectName(String fileKey) {
+        String fileName = getFileByFileKeys(Collections.singletonList(fileKey))
+                .stream()
+                .map(FileVo::getFileName)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("fileKey not found"));
+        return HoneyFileUtil.buildObjectNameByFileKey(fileName, fileKey);
     }
 
 }

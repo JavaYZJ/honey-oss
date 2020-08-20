@@ -1,14 +1,13 @@
 package com.eboy.honey.oss.server.file;
 
-import com.eboy.honey.oss.dto.HoneyStream;
-import com.eboy.honey.oss.server.application.service.FileService;
-import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
+import com.alibaba.fastjson.JSON;
+import com.eboy.honey.oss.server.application.service.impl.FileServiceImpl;
 import com.eboy.honey.oss.server.application.vo.FileVo;
-import com.eboy.honey.oss.server.client.HoneyMiniO;
-import io.minio.MinioClient;
-import io.minio.errors.MinioException;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
+import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +15,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.*;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author yangzhijie
@@ -31,109 +30,77 @@ import java.security.NoSuchAlgorithmException;
 @Slf4j
 public class FileTest {
 
+    private final String FILE_KEY = "b7572e9f8bdc3d7968af1445055e287e";
+
     @Value("${honey.oss.minio.bucketName}")
     private String bucketName;
 
     @Autowired
-    private FileService fileService;
+    private FileServiceImpl fileService;
 
-    @Autowired
-    private HoneyMiniO honeyMiniO;
 
+    // TODO 异步待优化再测试
 
     @Test
     public void fileUpload() {
-        String pathName = "E:\\学习\\Java进阶\\02.dubbo分布式架构基础篇 19课\\[www.javaxxz.com]第00节--课程介绍.avi";
+        String pathName = "F:\\test.jpg";
         File file = new File(pathName);
-        boolean upload = fileService.upload(file, bucketName, MediaType.APPLICATION_OCTET_STREAM);
+        boolean upload = fileService.upload(file, bucketName, MediaType.IMAGE_JPEG);
         log.info("是否上传成功：{}", upload);
     }
 
     @Test
-    public void down() {
-        String url = fileService.downAsUrl(bucketName, "[www.javaxxz.com]第00节--课程介绍.avi");
+    public void downAsUrl() {
+        String url = fileService.downAsUrl(bucketName, "16661315f17605f6f922885cdf45fcc1", 60);
         log.info(url);
     }
 
-    @SneakyThrows
     @Test
-    public void down1() {
-        FileOutputStream fos = new FileOutputStream("F:\\test.avi");
-        InputStream is = fileService.downAsStream(bucketName, "[www.javaxxz.com]第00节--课程介绍.avi");
-        byte[] b = new byte[1024];
-        int length;
-        while ((length = is.read(b)) > 0) {
-            fos.write(b, 0, length);
-        }
-        is.close();
-        fos.close();
-        log.info("");
+    public void downAsUrl1() {
+        String url = fileService.downAsUrl("b7572e9f8bdc3d7968af1445055e287e");
+        log.info(url);
     }
 
     @Test
-    public void upload() throws NoSuchAlgorithmException, IOException, InvalidKeyException, XmlPullParserException {
-        try {
-            // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
-            MinioClient minioClient = new MinioClient("http://49.235.208.98:9000", "YANGZHIJIEHONEYOSS", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
+    public void downAsStream() {
+        InputStream inputStream = fileService.downAsStream("b7572e9f8bdc3d7968af1445055e287e");
+        HoneyFileUtil.writeToLocal("F:\\write.jpg", inputStream);
 
-            // 检查存储桶是否已经存在
-            boolean isExist = minioClient.bucketExists(bucketName);
-            if (isExist) {
-                System.out.println("Bucket already exists.");
-            } else {
-                // 创建一个名为asiatrip的存储桶，用于存储照片的zip文件。
-                minioClient.makeBucket("asiatrip");
-            }
-
-            // 使用putObject上传一个文件到存储桶中。
-            minioClient.putObject(bucketName, "yangzhijie.jpeg", "E:\\yangzhijie.jpeg");
-            System.out.println("yangzhijie.jpeg is successfully uploaded as yangzhijie.jpeg to `asiatrip` bucket.");
-        } catch (MinioException e) {
-            System.out.println("Error occurred: " + e);
-        }
     }
 
     @Test
-    public void test() throws NoSuchAlgorithmException, IOException, InvalidKeyException, XmlPullParserException {
-        try {
-            // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
-            MinioClient minioClient = new MinioClient("http://49.235.208.98:9000", "YANGZHIJIEHONEYOSS", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
+    public void getFileByIds() {
+        List<FileVo> file = fileService.getFileByIds(Lists.newArrayList("ba34a242338047a3b2ce4464cf37a907", "e95559fa2c2646909ad89f1b17afcc5f", "a5edc1d0a02342e98cfe2b80f5ebb702"));
+        log.info(JSON.toJSONString(file));
+    }
 
-            // 检查存储桶是否已经存在
-            boolean isExist = minioClient.bucketExists(bucketName);
-            if (isExist) {
-                System.out.println("Bucket already exists.");
-            } else {
-                // 创建一个名为asiatrip的存储桶，用于存储照片的zip文件。
-                minioClient.makeBucket(bucketName);
-            }
-            String pathName = "E:\\yangzhijie12.jpeg";
-            File file = new File(pathName);
-            FileInputStream fileInputStream = new FileInputStream(file);
-            FileVo fileVo = new FileVo();
-            HoneyStream honeyStream = new HoneyStream(fileInputStream);
-            fileVo.setHoneyStream(honeyStream);
-            InputStream inputStream = fileVo.getHoneyStream().getInputStream();
-            // 使用putObject上传一个文件到存储桶中。
-            minioClient.putObject(bucketName, "yangzhijie666.jpeg", inputStream, MediaType.IMAGE_JPEG.toString());
-        } catch (MinioException e) {
-            System.out.println("Error occurred: " + e);
-        }
+    @Test
+    public void getFileByFileKeys() {
+        List<FileVo> file = fileService.getFileByFileKeys(Lists.newArrayList("6de44f6131bc1eb58ec24cdf07c4d800", "fd83d2d860d3a3cfdcd367ce3deb9f5a", "b7572e9f8bdc3d7968af1445055e287e"));
+        log.info(JSON.toJSONString(file));
+    }
 
+    @Test
+    public void down2local() {
+        fileService.down2Local(FILE_KEY, "F:\\local.jpg");
+    }
+
+    @Test
+    public void objectName() {
+        String objectNameByFileKey = HoneyFileUtil.buildObjectNameByFileKey("yangzhijie9999.jpeg", "123456");
+        log.info(objectNameByFileKey);
     }
 
     @SneakyThrows
     @Test
-    public void test1() {
-        String pathName = "E:\\yangzhijie12.jpeg";
-        File file = new File(pathName);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        FileVo fileVo = new FileVo();
-        HoneyStream honeyStream = new HoneyStream(fileInputStream);
-        fileVo.setHoneyStream(honeyStream);
-        FileVo fileVo1 = BeanConvertUtil.convertFileVo(file);
-        InputStream inputStream = fileVo1.getHoneyStream().getInputStream();
-        honeyMiniO.upload(bucketName, "yangzhijie9999.jpeg", inputStream, MediaType.IMAGE_JPEG);
+    public void thumbnail() {
+        File file = new File("F:\\yangzhijie520.jpeg");
+        FileInputStream inputStream = new FileInputStream(file);
+        Thumbnails.of(file).size(520, 520).toFile("F:\\yangzhijie_thumbnail.jpeg");
+
+        final File file1 = new File("F:\\yangzhijie_thumbnail.jpeg");
+        fileService.upload(file1, bucketName, MediaType.IMAGE_JPEG);
     }
+
 
 }
