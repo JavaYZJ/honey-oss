@@ -2,7 +2,6 @@ package com.eboy.honey.oss.server.application.utils;
 
 import com.eboy.honey.oss.dto.HoneyStream;
 import com.eboy.honey.oss.server.application.vo.FileVo;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 

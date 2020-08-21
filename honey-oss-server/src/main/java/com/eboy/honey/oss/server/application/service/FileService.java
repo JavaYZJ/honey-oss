@@ -22,9 +22,9 @@ public interface FileService {
      * @param file        文件实体
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否上传成功
+     * @return fileKey
      */
-    boolean upload(File file, String bucketName, MediaType contentType);
+    String upload(File file, String bucketName, MediaType contentType);
 
     /**
      * 异步上传文件（不分片）
@@ -32,9 +32,9 @@ public interface FileService {
      * @param file        文件实体
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否上传成功
+     * @return fileKey
      */
-    boolean asyncUpload(File file, String bucketName, MediaType contentType);
+    String asyncUpload(File file, String bucketName, MediaType contentType);
 
     /**
      * 文件上传(不分片)
@@ -42,9 +42,9 @@ public interface FileService {
      * @param fileVo      文件实体
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否成功
+     * @return fileKey
      */
-    boolean upload(FileVo fileVo, String bucketName, MediaType contentType);
+    String upload(FileVo fileVo, String bucketName, MediaType contentType);
 
     /**
      * 异步文件上传(不分片)
@@ -52,9 +52,9 @@ public interface FileService {
      * @param fileVo      文件实体
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否成功
+     * @return fileKey
      */
-    boolean asyncUpload(FileVo fileVo, String bucketName, MediaType contentType);
+    String asyncUpload(FileVo fileVo, String bucketName, MediaType contentType);
 
 
     /**
@@ -63,9 +63,9 @@ public interface FileService {
      * @param fileVo      文件
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否成功
+     * @return fileKey
      */
-    boolean uploadByShard(FileVo fileVo, String bucketName, MediaType contentType);
+    String uploadByShard(FileVo fileVo, String bucketName, MediaType contentType);
 
     /**
      * 异步分片上传
@@ -73,9 +73,9 @@ public interface FileService {
      * @param fileVo      文件
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否成功
+     * @return fileKey
      */
-    boolean asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType);
+    String asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType);
 
     /**
      * 下载为url
@@ -153,4 +153,13 @@ public interface FileService {
      * @return 是否成功
      */
     boolean updateFileState(String fileKey, FileState fileState);
+
+    /**
+     * @param image         图片源
+     * @param bucketName    桶名
+     * @param contentType   contentType
+     * @param needThumbnail 是否需要缩略图
+     * @return 是否成功
+     */
+    String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail);
 }

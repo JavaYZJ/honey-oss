@@ -1,17 +1,19 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
 import com.eboy.honey.oss.constant.FileState;
+import com.eboy.honey.oss.entiy.Thumbnail;
 import com.eboy.honey.oss.server.application.componet.AsyncTask;
 import com.eboy.honey.oss.server.application.dao.FileMapper;
 import com.eboy.honey.oss.server.application.po.FilePo;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.FileShardService;
+import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.utils.ArgsCheckUtil;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
+import com.eboy.honey.oss.server.application.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +46,9 @@ public class FileServiceImpl implements FileService {
     private FileShardService fileShardService;
 
     @Autowired
+    private ThumbnailService thumbnailService;
+
+    @Autowired
     private FileMapper fileMapper;
 
     @Autowired
@@ -60,13 +65,13 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean upload(FileVo fileVo, String bucketName, MediaType contentType) {
+    public String upload(FileVo fileVo, String bucketName, MediaType contentType) {
         // 参数校验
         ArgsCheckUtil.checkFile(fileVo, false);
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
         if (secondTransCheck(fileVo)) {
             log.info("秒传");
-            return true;
+            return fileVo.getFileKey();
         }
         // 创建文件信息
         FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
@@ -76,7 +81,7 @@ public class FileServiceImpl implements FileService {
         // 上传到MiniO
         String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileVo.getFileName(), fileVo.getFileKey());
         honeyMiniO.upload(bucketName, objectName, fileVo.getHoneyStream().getInputStream(), contentType);
-        return true;
+        return fileVo.getFileKey();
     }
 
     /**
@@ -88,21 +93,21 @@ public class FileServiceImpl implements FileService {
      * @return 是否成功
      */
     @Override
-    public boolean asyncUpload(FileVo fileVo, String bucketName, MediaType contentType) {
+    public String asyncUpload(FileVo fileVo, String bucketName, MediaType contentType) {
         // TODO 优化引入异步处理策略（1、http接口回调 2、MQ接受 3、短信等消息接受）
         // 参数校验
         ArgsCheckUtil.checkFile(fileVo, false);
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
         if (secondTransCheck(fileVo)) {
-            return true;
+            return fileVo.getFileKey();
         }
         // 创建文件信息
         FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
         // 插入到数据库
         fileMapper.addFile(filePo);
         // 异步上传
-        asyncTask.asyncUpload(fileShardService, fileVo, bucketName, contentType);
-        return true;
+        asyncTask.asyncUpload(this, fileVo, bucketName, contentType);
+        return fileVo.getFileKey();
     }
 
     /**
@@ -112,7 +117,7 @@ public class FileServiceImpl implements FileService {
      * @param contentType contentType
      * @return 是否成功
      */
-    public boolean asyncUpload(FileVo fileVo, MediaType contentType) {
+    public String asyncUpload(FileVo fileVo, MediaType contentType) {
         // TODO 优化引入异步处理策略（1、http接口回调 2、MQ接受 3、短信等消息接受）
         return asyncUpload(fileVo, bucketName, contentType);
     }
@@ -127,7 +132,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean uploadByShard(FileVo fileVo, String bucketName, MediaType contentType) {
+    public String uploadByShard(FileVo fileVo, String bucketName, MediaType contentType) {
         // 参数校验
         ArgsCheckUtil.checkFile(fileVo, true);
         // 是不是第一次分片上传
@@ -144,7 +149,7 @@ public class FileServiceImpl implements FileService {
         // 上传至MiniO
         String objectName = HoneyFileUtil.buildShardObjectName(fileShardVo.getShardName(), fileShardVo.getShardIndex());
         honeyMiniO.upload(bucketName, objectName, fileShardVo.getHoneyStream().getInputStream(), contentType);
-        return true;
+        return fileVo.getFileKey();
     }
 
     /**
@@ -155,7 +160,7 @@ public class FileServiceImpl implements FileService {
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public boolean uploadByShard(FileVo fileVo, MediaType contentType) {
+    public String uploadByShard(FileVo fileVo, MediaType contentType) {
         return uploadByShard(fileVo, bucketName, contentType);
     }
 
@@ -168,7 +173,7 @@ public class FileServiceImpl implements FileService {
      * @return 是否成功
      */
     @Override
-    public boolean asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType) {
+    public String asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType) {
         // TODO 引入异步处理策略（1、http接口回调 2、MQ接受 3、短信等消息接受）
         // 参数校验
         ArgsCheckUtil.checkFile(fileVo, true);
@@ -185,7 +190,7 @@ public class FileServiceImpl implements FileService {
         fileShardService.addFileShard(fileShardVo);
         // 异步上传分片
         asyncTask.asyncUpload(fileShardService, fileShardVo, bucketName, contentType);
-        return true;
+        return fileVo.getFileKey();
     }
 
 
@@ -196,7 +201,7 @@ public class FileServiceImpl implements FileService {
      * @param contentType contentType
      * @return 是否成功
      */
-    public boolean asyncUploadByShard(FileVo fileVo, MediaType contentType) {
+    public String asyncUploadByShard(FileVo fileVo, MediaType contentType) {
         return asyncUpload(fileVo, bucketName, contentType);
     }
 
@@ -208,7 +213,7 @@ public class FileServiceImpl implements FileService {
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public boolean upload(FileVo fileVo, MediaType contentType) {
+    public String upload(FileVo fileVo, MediaType contentType) {
         return upload(fileVo, bucketName, contentType);
     }
 
@@ -222,7 +227,7 @@ public class FileServiceImpl implements FileService {
      * @return 是否上传成功
      */
     @Override
-    public boolean asyncUpload(File file, String bucketName, MediaType contentType) {
+    public String asyncUpload(File file, String bucketName, MediaType contentType) {
         // 转换成fileVo
         FileVo fileVo = BeanConvertUtil.convertFileVo(file);
         return asyncUpload(fileVo, bucketName, contentType);
@@ -235,7 +240,7 @@ public class FileServiceImpl implements FileService {
      * @param contentType contentType
      * @return 是否上传成功
      */
-    public boolean asyncUpload(File file, MediaType contentType) {
+    public String asyncUpload(File file, MediaType contentType) {
         // 转换成fileVo
         FileVo fileVo = BeanConvertUtil.convertFileVo(file);
         return asyncUpload(fileVo, bucketName, contentType);
@@ -251,7 +256,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean upload(File file, String bucketName, MediaType contentType) {
+    public String upload(File file, String bucketName, MediaType contentType) {
         // 转换成fileVo
         FileVo fileVo = BeanConvertUtil.convertFileVo(file);
         return upload(fileVo, bucketName, contentType);
@@ -265,7 +270,7 @@ public class FileServiceImpl implements FileService {
      * @return 是否成功
      */
     @Transactional(rollbackFor = Exception.class)
-    public boolean upload(File file, MediaType contentType) {
+    public String upload(File file, MediaType contentType) {
         return upload(file, bucketName, contentType);
     }
 
@@ -393,6 +398,25 @@ public class FileServiceImpl implements FileService {
     @Override
     public boolean updateFileState(String fileKey, FileState fileState) {
         return fileMapper.updateFileState(fileKey, fileState.getStateCode());
+    }
+
+    /**
+     * @param image         图片源
+     * @param bucketName    桶名
+     * @param contentType   contentType
+     * @param needThumbnail 是否需要缩略图
+     * @return 是否成功
+     */
+    @Override
+    public String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail) {
+        // 先上传原图
+        String fileKey = upload(image, bucketName, contentType);
+        if (needThumbnail) {
+            Thumbnail defaultThumbnail = thumbnailService.defaultThumbnail();
+            // 异步上传默认缩略图
+
+        }
+        return fileKey;
     }
 
     /**

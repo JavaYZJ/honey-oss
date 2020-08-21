@@ -7,7 +7,6 @@ import com.eboy.honey.oss.service.HoneyOss;
 import org.apache.dubbo.config.annotation.Reference;
 import org.apache.http.entity.ContentType;
 
-import static com.eboy.honey.oss.utils.HoneyFileUtil.buildArgs;
 
 /**
  * @author yangzhijie
@@ -30,9 +29,7 @@ public class HoneyOssImpl implements HoneyOss {
      */
     @Override
     public void upload(FileDto fileDto, String bucketName, ContentType contentType) {
-        buildArgs(fileDto);
-        fileDto.setShardTotal(0);
-        fileDto.setShardSize(0);
+
     }
 
 
