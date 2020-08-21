@@ -3,10 +3,10 @@ package com.eboy.honey.oss.server.application.componet;
 import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.FileShardService;
+import com.eboy.honey.oss.server.application.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
@@ -42,12 +42,12 @@ public class AsyncTask {
      * 异步上传
      */
     @Async
-    public void asyncUpload(FileShardService service, FileVo fileVo, String bucketName, MediaType contentType) {
+    public void asyncUpload(FileService service, FileVo fileVo, String bucketName, MediaType contentType) {
         // 上传至Minio
         String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileVo.getFileName(), fileVo.getFileKey());
         honeyMiniO.upload(bucketName, objectName, fileVo.getHoneyStream().getInputStream(), contentType);
-        // 上传成功后，修改该分片状态为 成功
-        service.updateFileShardState(fileVo.getUid(), FileState.SUCCESS);
+        // 上传成功后，修改该文件状态为 成功
+        service.updateFileState(fileVo.getUid(), FileState.SUCCESS);
     }
 
     /**

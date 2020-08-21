@@ -1,5 +1,6 @@
-package com.eboy.honey.oss.utils;
+package com.eboy.honey.oss.server.application.utils;
 
+import com.Ostermiller.util.CircularByteBuffer;
 import com.eboy.honey.oss.dto.FileDto;
 import com.eboy.honey.oss.dto.HoneyStream;
 import com.sun.istack.internal.NotNull;
@@ -19,6 +20,12 @@ import java.util.UUID;
  */
 @Slf4j
 public class HoneyFileUtil {
+
+
+    /**
+     * 缩略图fileKey前缀标志
+     */
+    public final static String PRE_THUMBNAIL_TAG = "THUMBNAIL_";
 
     /**
      * 获取文件MD5的fileKey
@@ -62,6 +69,22 @@ public class HoneyFileUtil {
             log.warn("获取文件的FileKey失败，原因：{}", e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 获取缩略图fileKey(构建规则：PRE_THUMBNAIL_TAG + 原图filKey)
+     *
+     * @param fileKey 原图fileKey
+     * @return 缩略图fileKey
+     */
+    public static String getThumbnailFileKey(String fileKey) {
+        return PRE_THUMBNAIL_TAG + fileKey;
+    }
+
+
+    public static InputStream out2Input(OutputStream outputStream) {
+        CircularByteBuffer cbb = new CircularByteBuffer();
+        return null;
     }
 
     /**
