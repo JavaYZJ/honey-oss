@@ -1,6 +1,5 @@
-package com.eboy.honey.oss.server.application.utils;
+package com.eboy.honey.oss.utils;
 
-import com.Ostermiller.util.CircularByteBuffer;
 import com.eboy.honey.oss.dto.FileDto;
 import com.eboy.honey.oss.dto.HoneyStream;
 import com.sun.istack.internal.NotNull;
@@ -20,7 +19,6 @@ import java.util.UUID;
  */
 @Slf4j
 public class HoneyFileUtil {
-
 
     /**
      * 缩略图fileKey前缀标志
@@ -72,6 +70,16 @@ public class HoneyFileUtil {
     }
 
     /**
+     * 获取缩略图ObjectName(构建规则：PRE_THUMBNAIL_TAG + 原图filKey)
+     *
+     * @param fileKey 原图fileKey
+     * @return 缩略图fileKey
+     */
+    public static String getThumbnailObjectName(String fileKey, String outputFormat) {
+        return PRE_THUMBNAIL_TAG + fileKey + "." + outputFormat;
+    }
+
+    /**
      * 获取缩略图fileKey(构建规则：PRE_THUMBNAIL_TAG + 原图filKey)
      *
      * @param fileKey 原图fileKey
@@ -79,12 +87,6 @@ public class HoneyFileUtil {
      */
     public static String getThumbnailFileKey(String fileKey) {
         return PRE_THUMBNAIL_TAG + fileKey;
-    }
-
-
-    public static InputStream out2Input(OutputStream outputStream) {
-        CircularByteBuffer cbb = new CircularByteBuffer();
-        return null;
     }
 
     /**

@@ -2,8 +2,8 @@ package com.eboy.honey.oss.server.file;
 
 import com.alibaba.fastjson.JSON;
 import com.eboy.honey.oss.server.application.service.impl.FileServiceImpl;
-import com.eboy.honey.oss.server.application.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
 import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -120,8 +120,10 @@ public class FileTest {
     }
 
 
+    @Test
     public void test() {
-
+        File file = new File("F:\\test.jpg");
+        String fileKey = fileService.uploadImage(file, bucketName, MediaType.IMAGE_JPEG, true);
     }
 
 
