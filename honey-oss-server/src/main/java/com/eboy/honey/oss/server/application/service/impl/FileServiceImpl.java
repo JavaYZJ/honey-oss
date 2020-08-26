@@ -10,16 +10,17 @@ import com.eboy.honey.oss.server.application.service.FileShardService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.utils.ArgsCheckUtil;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
-import com.eboy.honey.oss.server.application.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -408,13 +409,19 @@ public class FileServiceImpl implements FileService {
      * @return 是否成功
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail) {
         // 先上传原图
         String fileKey = upload(image, bucketName, contentType);
         if (needThumbnail) {
-            Thumbnail defaultThumbnail = thumbnailService.defaultThumbnail();
-            // 异步上传默认缩略图
-
+            Thumbnail defaultThumbnail = thumbnailService.defaultThumbnail(image);
+            String filePath = defaultThumbnail.getOutputMode().getFilePath();
+            File thumbnail = new File(filePath);
+            FileVo fileVo = BeanConvertUtil.convertFileVo(thumbnail);
+            String thumbnailFileKey = HoneyFileUtil.getThumbnailFileKey(fileKey);
+            fileVo.setFileKey(thumbnailFileKey);
+            // 上传缩略图
+            upload(fileVo, bucketName, contentType);
         }
         return fileKey;
     }
@@ -426,6 +433,9 @@ public class FileServiceImpl implements FileService {
      * @return 含有分片信息的文件
      */
     private List<FileVo> mergeFileShad(List<FilePo> sources) {
+        if (CollectionUtils.isEmpty(sources)) {
+            throw new IllegalArgumentException("file or thumbnail not found");
+        }
         Map<String, List<FileShardVo>> rs = fileShardService.getFileShardInfoByFileKeys(
                 sources.stream()
                         .map(FilePo::getFileKey)

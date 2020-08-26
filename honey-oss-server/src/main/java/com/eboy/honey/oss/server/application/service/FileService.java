@@ -162,4 +162,5 @@ public interface FileService {
      * @return 是否成功
      */
     String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail);
+
 }

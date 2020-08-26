@@ -2,12 +2,14 @@ package com.eboy.honey.oss.server.application.utils;
 
 import com.eboy.honey.oss.dto.HoneyStream;
 import com.eboy.honey.oss.server.application.vo.FileVo;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +60,7 @@ public class BeanConvertUtil {
     public static FileVo convertFileVo(File file) {
         try {
             FileVo fileVo = new FileVo();
-            FileInputStream inputStream = new FileInputStream(file);
+            FileInputStream inputStream = FileUtils.openInputStream(file);
             // 设置uid
             fileVo.setUid(HoneyFileUtil.get32Uid());
             // 设置流
@@ -68,7 +70,7 @@ public class BeanConvertUtil {
             String fileName = file.getName();
             fileVo.setFileName(fileName);
             // 设置fileKey
-            String fileKey = HoneyFileUtil.getFileKey(new FileInputStream(file));
+            String fileKey = HoneyFileUtil.getFileKey(FileUtils.openInputStream(file));
             fileVo.setFileKey(fileKey);
             // 设置文件格式
             String fileSuffix = HoneyFileUtil.getFileSuffix(fileName);
@@ -81,7 +83,7 @@ public class BeanConvertUtil {
             // 设置分片大小
             fileVo.setShardSize(0);
             return fileVo;
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             log.warn("主服务构建FileVo失败，原因：{}", e.getMessage());
             throw new RuntimeException(e);
         }

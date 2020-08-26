@@ -8,6 +8,7 @@ import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
 import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
@@ -15,10 +16,12 @@ import net.coobird.thumbnailator.geometry.Positions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -64,10 +67,50 @@ public class ThumbnailImpl implements ThumbnailService {
      * @return 缩略图fileKey
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String upload(File image, String bucketName, MediaType contentType) {
         FileVo fileVo = BeanConvertUtil.convertFileVo(image);
         return fileService.upload(fileVo, bucketName, contentType);
     }
+
+    /**
+     * 根据原图获取缩略图链接
+     *
+     * @param fileKey 原图fileKey
+     * @return 缩略图链接
+     */
+    @Override
+    public String getUrlByOriginalPicture(String bucketName, String fileKey) {
+        String thumbnailFileKey = HoneyFileUtil.getThumbnailFileKey(fileKey);
+        return fileService.downAsUrl(bucketName, thumbnailFileKey);
+    }
+
+    /**
+     * 根据原图获取缩略图流
+     *
+     * @param bucketName 桶名
+     * @param fileKey    原图fileKey
+     * @return 缩略图流
+     */
+    @Override
+    public InputStream getStreamByOriginalPicture(String bucketName, String fileKey) {
+        String thumbnailFileKey = HoneyFileUtil.getThumbnailFileKey(fileKey);
+        return fileService.downAsStream(bucketName, thumbnailFileKey);
+    }
+
+    /**
+     * 根据原图将缩略图下载至指定本地路径
+     *
+     * @param bucketName   桶名
+     * @param fileKey      原图fileKey
+     * @param fileDownPath 指定本地路径
+     */
+    @Override
+    public void down2LocalByOriginalPicture(String bucketName, String fileKey, String fileDownPath) {
+        String thumbnailFileKey = HoneyFileUtil.getThumbnailFileKey(fileKey);
+        fileService.down2Local(bucketName, thumbnailFileKey, fileDownPath);
+    }
+
 
     /**
      * 处理输入源
@@ -143,7 +186,7 @@ public class ThumbnailImpl implements ThumbnailService {
         if (outputMode != null) {
             String filePath = outputMode.getFilePath();
             try {
-                if (!filePath.isEmpty()) {
+                if (filePath != null) {
                     of.toFile(filePath);
                     return;
                 }
