@@ -86,6 +86,20 @@ public class ThumbnailImpl implements ThumbnailService {
     }
 
     /**
+     * 根据原图获取缩略图链接
+     *
+     * @param bucketName 桶名
+     * @param fileKey    原图fileKey
+     * @param expires    过期时间（秒）
+     * @return 缩略图链接
+     */
+    @Override
+    public String getUrlByOriginalPicture(String bucketName, String fileKey, Integer expires) {
+        String thumbnailFileKey = HoneyFileUtil.getThumbnailFileKey(fileKey);
+        return fileService.downAsUrl(bucketName, thumbnailFileKey, expires);
+    }
+
+    /**
      * 根据原图获取缩略图流
      *
      * @param bucketName 桶名
