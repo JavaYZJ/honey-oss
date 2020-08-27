@@ -32,7 +32,7 @@ public class AsyncTask {
     @Async
     public void asyncUpload(FileShardService service, FileShardVo fileShardVo, String bucketName, MediaType contentType) {
         // 上传至Minio
-        String objectName = HoneyFileUtil.buildShardObjectName(fileShardVo.getShardName(), fileShardVo.getShardIndex());
+        String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileShardVo.getShardName(), fileShardVo.getFileKey());
         honeyMiniO.upload(bucketName, fileShardVo.getFileKey(), fileShardVo.getHoneyStream().getInputStream(), contentType);
         // 上传成功后，修改该分片状态为 成功
         service.updateFileShardState(fileShardVo.getUid(), FileState.SUCCESS);

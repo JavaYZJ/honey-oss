@@ -2,6 +2,7 @@ package com.eboy.honey.oss.server.application.service;
 
 
 import com.eboy.honey.oss.constant.FileState;
+import com.eboy.honey.oss.dto.HoneyStream;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.springframework.http.MediaType;
 
@@ -105,6 +106,16 @@ public interface FileService {
      */
     InputStream downAsStream(String bucketName, String fileKey);
 
+
+    /**
+     * 下载为文件流
+     *
+     * @param bucketName 桶名
+     * @param fileKey    fileKey
+     * @return HoneyStream 文件流
+     */
+    HoneyStream downAsHoneyStream(String bucketName, String fileKey);
+
     /**
      * 下载至本地
      *
@@ -165,11 +176,13 @@ public interface FileService {
     boolean updateFileState(String fileKey, FileState fileState);
 
     /**
+     * 上传图片
+     *
      * @param image         图片源
      * @param bucketName    桶名
      * @param contentType   contentType
      * @param needThumbnail 是否需要缩略图
-     * @return 是否成功
+     * @return 原图fileKey
      */
     String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail);
 

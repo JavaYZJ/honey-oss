@@ -1,7 +1,7 @@
 package com.eboy.honey.oss.server.file;
 
 import com.alibaba.fastjson.JSON;
-import com.eboy.honey.oss.server.application.service.impl.FileServiceImpl;
+import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.utils.HoneyFileUtil;
 import com.google.common.collect.Lists;
@@ -38,7 +38,7 @@ public class FileTest {
     private String bucketName;
 
     @Autowired
-    private FileServiceImpl fileService;
+    private FileService fileService;
 
 
     // TODO 异步待优化再测试

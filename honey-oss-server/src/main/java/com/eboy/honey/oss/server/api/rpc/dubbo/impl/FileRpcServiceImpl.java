@@ -1,15 +1,20 @@
 package com.eboy.honey.oss.server.api.rpc.dubbo.impl;
 
 
+import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.dto.FileDto;
+import com.eboy.honey.oss.dto.HoneyStream;
 import com.eboy.honey.oss.dubbo.FileRpcService;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
+import com.eboy.honey.oss.utils.HoneyFileUtil;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -19,12 +24,100 @@ import java.util.List;
 @Service(version = "1.0")
 public class FileRpcServiceImpl implements FileRpcService {
 
-    @Value("${honey.oss.minio.bucketName}")
-    private String bucketName;
-
     @Autowired
     private FileService fileService;
 
+
+    /**
+     * 上传文件(不分片)
+     *
+     * @param file        文件实体
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return fileKey
+     */
+    @Override
+    public String upload(File file, String bucketName, MediaType contentType) {
+        return fileService.upload(file, bucketName, contentType);
+    }
+
+    /**
+     * 文件上传(不分片)
+     *
+     * @param fileDto     文件实体
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return fileKey
+     */
+    @Override
+    public String upload(FileDto fileDto, String bucketName, MediaType contentType) {
+        FileVo fileVo = BeanConvertUtil.convert(fileDto, FileVo.class);
+        return fileService.upload(fileVo, bucketName, contentType);
+    }
+
+    /**
+     * 分片上传
+     *
+     * @param fileDto     文件
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @return fileKey
+     */
+    @Override
+    public String uploadByShard(FileDto fileDto, String bucketName, MediaType contentType) {
+        FileVo fileVo = BeanConvertUtil.convert(fileDto, FileVo.class);
+        return fileService.uploadByShard(fileVo, bucketName, contentType);
+    }
+
+    /**
+     * 下载为url
+     *
+     * @param bucketName 桶名
+     * @param fileKey    对象名
+     * @return string 文件的url
+     */
+    @Override
+    public String downAsUrl(String bucketName, String fileKey) {
+        return fileService.downAsUrl(bucketName, fileKey);
+    }
+
+    /**
+     * 下载为url
+     *
+     * @param bucketName 桶名
+     * @param fileKey    文件fileKey
+     * @param expires    过期时间(秒)
+     * @return string 文件的url
+     */
+    @Override
+    public String downAsUrl(String bucketName, String fileKey, Integer expires) {
+        return fileService.downAsUrl(bucketName, fileKey, expires);
+    }
+
+    /**
+     * 下载为文件流
+     *
+     * @param bucketName 桶名
+     * @param fileKey    fileKey
+     * @return InputStream 文件流
+     */
+    @Override
+    public HoneyStream downAsStream(String bucketName, String fileKey) {
+        return fileService.downAsHoneyStream(bucketName, fileKey);
+    }
+
+    /**
+     * 下载至本地
+     *
+     * @param bucketName   桶名
+     * @param fileKey      fileKey
+     * @param fileDownPath 指定下载到本地的文件目录
+     */
+    @Override
+    public void down2Local(String bucketName, String fileKey, String fileDownPath) {
+        InputStream inputStream = downAsStream(bucketName, fileKey).getInputStream();
+        HoneyFileUtil.writeToLocal(fileDownPath, inputStream);
+    }
 
     /**
      * 根据ids查找文件
@@ -34,8 +127,8 @@ public class FileRpcServiceImpl implements FileRpcService {
      */
     @Override
     public List<FileDto> getFileByIds(List<String> ids) {
-        List<FileVo> list = fileService.getFileByIds(ids);
-        return BeanConvertUtil.convertByList(list, FileDto.class);
+        List<FileVo> files = fileService.getFileByIds(ids);
+        return BeanConvertUtil.convertByList(files, FileDto.class);
     }
 
     /**
@@ -46,8 +139,8 @@ public class FileRpcServiceImpl implements FileRpcService {
      */
     @Override
     public List<FileDto> getFileByFileKeys(List<String> fileKeys) {
-        List<FileVo> rs = fileService.getFileByFileKeys(fileKeys);
-        return BeanConvertUtil.convertByList(rs, FileDto.class);
+        List<FileVo> files = fileService.getFileByFileKeys(fileKeys);
+        return BeanConvertUtil.convertByList(files, FileDto.class);
     }
 
     /**
@@ -82,5 +175,31 @@ public class FileRpcServiceImpl implements FileRpcService {
     @Override
     public boolean deletedFileByFileKeys(List<String> fileKeys) {
         return fileService.deletedFileByFileKeys(fileKeys);
+    }
+
+    /**
+     * 更新文件状态
+     *
+     * @param fileKey   文件key
+     * @param fileState 文件状态
+     * @return 是否成功
+     */
+    @Override
+    public boolean updateFileState(String fileKey, FileState fileState) {
+        return fileService.updateFileState(fileKey, fileState);
+    }
+
+    /**
+     * 上传图片
+     *
+     * @param image         图片源
+     * @param bucketName    桶名
+     * @param contentType   contentType
+     * @param needThumbnail 是否需要缩略图
+     * @return 原图fileKey
+     */
+    @Override
+    public String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail) {
+        return fileService.uploadImage(image, bucketName, contentType, needThumbnail);
     }
 }
