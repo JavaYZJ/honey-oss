@@ -1,6 +1,7 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
 import com.eboy.honey.oss.constant.FileState;
+import com.eboy.honey.oss.dto.HoneyStream;
 import com.eboy.honey.oss.entiy.Thumbnail;
 import com.eboy.honey.oss.server.application.componet.AsyncTask;
 import com.eboy.honey.oss.server.application.dao.FileMapper;
@@ -132,7 +133,7 @@ public class FileServiceImpl implements FileService {
         FileShardVo fileShardVo = fileVo.getFileShardVos().get(0);
         fileShardService.addFileShard(fileShardVo);
         // 上传至MiniO
-        String objectName = HoneyFileUtil.buildShardObjectName(fileShardVo.getShardName(), fileShardVo.getShardIndex());
+        String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileShardVo.getShardName(), fileShardVo.getFileKey());
         honeyMiniO.upload(bucketName, objectName, fileShardVo.getHoneyStream().getInputStream(), contentType);
         return fileVo.getFileKey();
     }
@@ -239,6 +240,19 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
+     * 下载为文件流
+     *
+     * @param bucketName 桶名
+     * @param fileKey    fileKey
+     * @return HoneyStream 文件流
+     */
+    @Override
+    public HoneyStream downAsHoneyStream(String bucketName, String fileKey) {
+        InputStream inputStream = downAsStream(bucketName, fileKey);
+        return new HoneyStream(inputStream);
+    }
+
+    /**
      * 下载至本地
      *
      * @param bucketName   桶名
@@ -295,7 +309,7 @@ public class FileServiceImpl implements FileService {
      * @param bucketName    桶名
      * @param contentType   contentType
      * @param needThumbnail 是否需要缩略图
-     * @return 是否成功
+     * @return 原图fileKey
      */
     @Override
     @Transactional(rollbackFor = Exception.class)

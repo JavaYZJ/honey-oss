@@ -3,11 +3,10 @@ package com.eboy.honey.oss.utils;
 import com.eboy.honey.oss.dto.FileDto;
 import com.eboy.honey.oss.dto.HoneyStream;
 import com.sun.istack.internal.NotNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.util.Objects;
@@ -24,6 +23,105 @@ public class HoneyFileUtil {
      * 缩略图fileKey前缀标志
      */
     public final static String PRE_THUMBNAIL_TAG = "THUMBNAIL_";
+
+
+    /**
+     * 文件切割
+     *
+     * @param filePath 文件路径
+     * @param count    切割块数
+     */
+    public static long spiltFile(String filePath, int count) {
+        // 预分配文件所占用的磁盘空间，在磁盘创建一个指定大小的文件，“r”表示只读，“rw”支持随机读写
+        try (RandomAccessFile raf = new RandomAccessFile(new File(filePath), "r")) {
+            // 计算文件大小
+            long length = raf.length();
+            // 计算文件切片后每一份文件的大小
+            long maxSize = length / count;
+            // 定义初始文件的偏移量(读取进度)
+            long offset = 0L;
+            // 开始切割文件 count-1最后一份文件不处理
+            for (int i = 0; i < count - 1; i++) {
+                // 标记初始化
+                long fbegin = offset;
+                // 分割第几份文件
+                long fend = (i + 1) * maxSize;
+                // 写入文件
+                offset = getWrite(filePath, i, fbegin, fend);
+            }
+            // 剩余部分文件写入到最后一份(如果不能平平均分配的时候)
+            if (length - offset > 0) {
+                // 写入文件
+                getWrite(filePath, count - 1, offset, length);
+            }
+            return maxSize;
+        } catch (Exception e) {
+            log.warn("file spilt happen error,the reason: {}", e.getMessage());
+            throw new RuntimeException("file spilt happen error");
+        }
+    }
+
+    /**
+     * 指定文件每一份的边界，写入不同文件中
+     *
+     * @param file  源文件
+     * @param index 源文件的顺序标识
+     * @param begin 开始指针的位置
+     * @param end   结束指针的位置
+     * @return long
+     */
+    public static long getWrite(String file, int index, long begin, long end) {
+
+        long endPointer;
+        try (
+                // 申明文件切割后的文件磁盘
+                RandomAccessFile in = new RandomAccessFile(new File(file), "r");
+                // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
+                RandomAccessFile out = new RandomAccessFile(new File(file + "_" + index + ".tmp"), "rw")
+        ) {
+            // 申明具体每一文件的字节数组
+            byte[] b = new byte[1024];
+            int n;
+            // 从指定位置读取文件字节流
+            in.seek(begin);
+            // 判断文件流读取的边界
+            while (in.getFilePointer() <= end && (n = in.read(b)) != -1) {
+                // 从指定每一份文件的范围，写入不同的文件
+                out.write(b, 0, n);
+            }
+            // 定义当前读取文件的指针
+            endPointer = in.getFilePointer();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return endPointer;
+    }
+
+    /**
+     * 文件合并
+     *
+     * @param desFile   指定合并文件
+     * @param tempFile  分割前的文件名
+     * @param tempCount 文件个数
+     */
+    public static void merge(String desFile, String tempFile, int tempCount) {
+        // 申明随机读取文件RandomAccessFile
+        try (RandomAccessFile raf = new RandomAccessFile(new File(desFile), "rw")) {
+            // 开始合并文件，对应切片的二进制文件
+            for (int i = 0; i < tempCount; i++) {
+                // 读取切片文件
+                RandomAccessFile reader = new RandomAccessFile(new File(tempFile + "_" + i + ".tmp"), "r");
+                byte[] b = new byte[1024];
+                int n;
+                while ((n = reader.read(b)) != -1) {
+                    // 一边读，一边写
+                    raf.write(b, 0, n);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * 获取文件MD5的fileKey
@@ -107,15 +205,14 @@ public class HoneyFileUtil {
     }
 
     /**
-     * 构建分片objectName
+     * 构建分片ShardName
      *
-     * @param ShardName  分片名
+     * @param fileName   文件名
      * @param shardIndex 分片索引
      * @return 分片objectName
      */
-    public static String buildShardObjectName(@NotNull String ShardName, @NotNull int shardIndex) {
-        StringBuilder sb = new StringBuilder(ShardName);
-        return sb.append("_").append(shardIndex).toString();
+    public static String buildShardName(@NotNull String fileName, @NotNull int shardIndex) {
+        return fileName + "_" + shardIndex + ".temp";
     }
 
     /**
@@ -152,25 +249,6 @@ public class HoneyFileUtil {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public static InputStream getInputStream(@NotNull FileDto fileDto) throws FileNotFoundException {
-        InputStream inputStream = null;
-        String filePath = fileDto.getFilePath();
-        if (filePath != null) {
-            File file = new File(filePath);
-            inputStream = new FileInputStream(file);
-        }
-        File file = fileDto.getFile();
-        if (file != null) {
-            inputStream = new FileInputStream(file);
-        }
-        InputStream honeyStream = fileDto.getHoneyStream().getInputStream();
-        if (honeyStream != null) {
-            inputStream = honeyStream;
-        }
-        Assert.isTrue(inputStream != null, "文件不能为空，请指定文件路径或者创建File实体，或者传入文件流InputStream");
-        return inputStream;
     }
 
     /**
@@ -220,27 +298,41 @@ public class HoneyFileUtil {
     }
 
     /**
-     * 参数校验&构建
+     * File转换成FileDto
      *
-     * @param fileDto 文件实体
+     * @param file file
+     * @return FileDto
      */
-    @SneakyThrows
-    public static void buildArgs(@NotNull FileDto fileDto) {
-        // uid
-        String uid = get32Uid();
-        fileDto.setUid(uid);
-        // 文件名
-        String fileName = fileDto.getFileName();
-        Assert.isTrue(!StringUtils.isEmpty(fileName), "文件名不能为空");
-        // 文件后缀
-        String fileSuffix = getFileSuffix(fileName);
-        fileDto.setFileSuffix(fileSuffix);
-        // 文件流 & fileKey
-        InputStream inputStream = getInputStream(fileDto);
-        String fileKey = getFileKey(inputStream);
-        fileDto.setFileKey(fileKey);
-        fileDto.setHoneyStream(new HoneyStream(inputStream));
-        // 文件大小
-        fileDto.setFileSize(HoneyFileUtil.getFileSize((FileInputStream) inputStream));
+    public static FileDto convertFileDto(File file) {
+        try {
+            FileDto fileDto = new FileDto();
+            FileInputStream inputStream = FileUtils.openInputStream(file);
+            // 设置uid
+            fileDto.setUid(HoneyFileUtil.get32Uid());
+            // 设置流
+            HoneyStream honeyStream = new HoneyStream(inputStream);
+            fileDto.setHoneyStream(honeyStream);
+            // 设置文件名
+            String fileName = file.getName();
+            fileDto.setFileName(fileName);
+            // 设置fileKey
+            String fileKey = HoneyFileUtil.getFileKey(FileUtils.openInputStream(file));
+            fileDto.setFileKey(fileKey);
+            // 设置文件格式
+            String fileSuffix = HoneyFileUtil.getFileSuffix(fileName);
+            fileDto.setFileSuffix(fileSuffix);
+            // 设置文件大小
+            long fileSize = HoneyFileUtil.getFileSize(inputStream);
+            fileDto.setFileSize(fileSize);
+            // 设置分片总数
+            fileDto.setShardTotal(0);
+            // 设置分片大小
+            fileDto.setShardSize(0);
+            return fileDto;
+        } catch (IOException e) {
+            log.warn("SDK构建FileDto失败，原因：{}", e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
+
 }
