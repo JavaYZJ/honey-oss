@@ -33,6 +33,11 @@ public class ThumbnailTest {
         log.info(url);
     }
 
+    @Test
+    public void getUrlByOriginalPicture1() {
+        String url = thumbnailService.getUrlByOriginalPicture(bucketName, "b7572e9f8bdc3d7968af1445055e287e", 60);
+        log.info(url);
+    }
 
     @Test
     public void down2LocalByOriginalPicture() {

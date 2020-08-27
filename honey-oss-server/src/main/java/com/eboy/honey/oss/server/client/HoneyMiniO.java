@@ -1,5 +1,6 @@
 package com.eboy.honey.oss.server.client;
 
+import com.eboy.honey.oss.server.application.utils.HoneyIOUtil;
 import io.minio.MinioClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +55,11 @@ public class HoneyMiniO {
         try {
             checkBucket(bucketName);
             minioClient.putObject(bucketName, objectName, inputStream, size, contentType.toString());
-            inputStream.close();
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
+        } finally {
+            HoneyIOUtil.closeQuietly(inputStream);
         }
     }
 
@@ -90,10 +92,11 @@ public class HoneyMiniO {
         try {
             checkBucket(bucketName);
             minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
-            inputStream.close();
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
+        } finally {
+            HoneyIOUtil.closeQuietly(inputStream);
         }
     }
 
@@ -108,10 +111,11 @@ public class HoneyMiniO {
         try {
             checkBucket(bucketName);
             minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
-            inputStream.close();
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
+        } finally {
+            HoneyIOUtil.closeQuietly(inputStream);
         }
     }
 
@@ -127,11 +131,12 @@ public class HoneyMiniO {
         try {
             checkBucket(bucketName);
             minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
-            inputStream.close();
             return minioClient.getObjectUrl(bucketName, objectName);
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
+        } finally {
+            HoneyIOUtil.closeQuietly(inputStream);
         }
     }
 
@@ -148,11 +153,12 @@ public class HoneyMiniO {
         try {
             checkBucket(bucketName);
             minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
-            inputStream.close();
             return minioClient.getObjectUrl(bucketName, objectName);
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
+        } finally {
+            HoneyIOUtil.closeQuietly(inputStream);
         }
     }
 

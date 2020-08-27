@@ -47,6 +47,17 @@ public interface ThumbnailService {
 
 
     /**
+     * 根据原图获取缩略图链接
+     *
+     * @param fileKey    原图fileKey
+     * @param bucketName 桶名
+     * @param expires    过期时间（秒）
+     * @return 缩略图链接
+     */
+    String getUrlByOriginalPicture(String bucketName, String fileKey, Integer expires);
+
+
+    /**
      * 根据原图获取缩略图流
      *
      * @param bucketName 桶名

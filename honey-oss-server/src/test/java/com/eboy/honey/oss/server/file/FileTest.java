@@ -59,13 +59,13 @@ public class FileTest {
 
     @Test
     public void downAsUrl1() {
-        String url = fileService.downAsUrl("b7572e9f8bdc3d7968af1445055e287e");
+        String url = fileService.downAsUrl(bucketName, "b7572e9f8bdc3d7968af1445055e287e");
         log.info(url);
     }
 
     @Test
     public void downAsStream() {
-        InputStream inputStream = fileService.downAsStream("b7572e9f8bdc3d7968af1445055e287e");
+        InputStream inputStream = fileService.downAsStream(bucketName, "b7572e9f8bdc3d7968af1445055e287e");
         HoneyFileUtil.writeToLocal("F:\\write.jpg", inputStream);
 
     }
@@ -84,7 +84,7 @@ public class FileTest {
 
     @Test
     public void down2local() {
-        fileService.down2Local(FILE_KEY, "F:\\local.jpg");
+        fileService.down2Local(bucketName, FILE_KEY, "F:\\local.jpg");
     }
 
     @Test

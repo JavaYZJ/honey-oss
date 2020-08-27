@@ -87,6 +87,16 @@ public interface FileService {
     String downAsUrl(String bucketName, String fileKey);
 
     /**
+     * 下载为url
+     *
+     * @param bucketName 桶名
+     * @param fileKey    文件fileKey
+     * @param expires    过期时间(秒)
+     * @return string 文件的url
+     */
+    String downAsUrl(String bucketName, String fileKey, Integer expires);
+
+    /**
      * 下载为文件流
      *
      * @param bucketName 桶名
