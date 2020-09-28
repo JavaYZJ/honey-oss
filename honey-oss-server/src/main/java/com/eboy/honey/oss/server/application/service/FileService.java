@@ -3,6 +3,7 @@ package com.eboy.honey.oss.server.application.service;
 
 import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.dto.HoneyStream;
+import com.eboy.honey.oss.entiy.Thumbnail;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.springframework.http.MediaType;
 
@@ -185,5 +186,16 @@ public interface FileService {
      * @return 原图fileKey
      */
     String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail);
+
+    /**
+     * 自定义缩略图规则上传图片
+     *
+     * @param image       图片源
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @param thumbnail   缩略图规则
+     * @return 原图fileKey
+     */
+    String uploadImage(File image, String bucketName, MediaType contentType, Thumbnail thumbnail);
 
 }

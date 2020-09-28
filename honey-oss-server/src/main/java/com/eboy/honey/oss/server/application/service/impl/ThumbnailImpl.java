@@ -7,6 +7,7 @@ import com.eboy.honey.oss.entiy.WaterMark;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
+import com.eboy.honey.oss.server.application.utils.FilePathUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.utils.HoneyFileUtil;
 import com.sun.istack.internal.NotNull;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -167,6 +169,7 @@ public class ThumbnailImpl implements ThumbnailService {
             float transparency = waterMark.getTransparency();
             // 水印图片源
             File waterMarkSource = waterMark.getWaterMarkSource();
+            Assert.notNull(waterMarkSource, "waterMarkSource must not null");
             try {
                 of.watermark(positions, ImageIO.read(waterMarkSource), transparency);
             } catch (IOException e) {
@@ -185,7 +188,7 @@ public class ThumbnailImpl implements ThumbnailService {
     }
 
     /**
-     * 处理输出图片质量
+     * 处理输出图片格式
      */
     protected void handleOutputFormat(Thumbnails.Builder<File> of, Thumbnail thumbnail) {
         String outputFormat = thumbnail.getOutputFormat();
@@ -197,20 +200,26 @@ public class ThumbnailImpl implements ThumbnailService {
      */
     protected void handleOutputMode(Thumbnails.Builder<File> of, Thumbnail thumbnail) {
         OutputMode outputMode = thumbnail.getOutputMode();
-        if (outputMode != null) {
-            String filePath = outputMode.getFilePath();
-            try {
+        try {
+            if (outputMode != null) {
+                String filePath = outputMode.getFilePath();
+                OutputStream outputStream = outputMode.getOutputStream();
                 if (filePath != null) {
                     of.toFile(filePath);
-                    return;
+                } else if (outputStream != null) {
+                    of.toOutputStream(outputStream);
                 }
-                OutputStream outputStream = outputMode.getOutputStream();
-                of.toOutputStream(outputStream);
-                outputMode.setOutputStream(outputStream);
-            } catch (IOException e) {
-                log.warn("handle output mode happen error,the reason:{}", e.getMessage());
-                throw new RuntimeException("handle output mode happen error");
+            } else {
+                // 什么都没设置时，默认存到一个目录
+                String thumbnailPath = FilePathUtil.defaultThumbnailPath() + thumbnail.getOutputFormat();
+                of.toFile(thumbnailPath);
+                OutputMode mode = new OutputMode();
+                mode.setFilePath(thumbnailPath);
+                thumbnail.setOutputMode(mode);
             }
+        } catch (IOException e) {
+            log.warn("handle output mode happen error,the reason:{}", e.getMessage());
+            throw new RuntimeException("handle output mode happen error");
         }
     }
 }
