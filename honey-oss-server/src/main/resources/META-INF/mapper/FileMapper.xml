@@ -10,18 +10,24 @@
                                file_path,
                                shard_size,
                                shard_total,
+                               bucket_name,
                                file_state,
                                create_time,
-                               update_time</sql>
+                               update_time
+    </sql>
     <insert id="addFile">
         insert into t_file(uid, file_name, file_key, file_suffix, file_size, file_path, shard_size,
-        shard_total,file_state)
+        shard_total
+        <if test="file.fileState != null and file.fileState != ''">
+            ,file_state
+        </if>
+        ,bucket_name)
         values (#{file.uid}, #{file.fileName}, #{file.fileKey}, #{file.fileSuffix}, #{file.fileSize},
         #{file.filePath}, #{file.shardSize}, #{file.shardTotal}
         <if test="file.fileState != null and file.fileState != ''">
             ,(#{file.fileState})
         </if>
-        )
+        ,#{file.bucketName})
     </insert>
     <select id="getFileByIds" resultType="com.eboy.honey.oss.server.application.po.FilePo">
         select

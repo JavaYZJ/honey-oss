@@ -46,6 +46,10 @@ public class FileVo {
      */
     private int shardTotal;
     /**
+     * 所属桶名
+     */
+    private String bucketName;
+    /**
      * 流
      */
     private HoneyStream honeyStream;

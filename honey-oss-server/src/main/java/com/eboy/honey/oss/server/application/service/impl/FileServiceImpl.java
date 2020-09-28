@@ -196,6 +196,7 @@ public class FileServiceImpl implements FileService {
     public String upload(File file, String bucketName, MediaType contentType) {
         // 转换成fileVo
         FileVo fileVo = BeanConvertUtil.convertFileVo(file);
+        fileVo.setBucketName(bucketName);
         return upload(fileVo, bucketName, contentType);
     }
 
@@ -323,6 +324,7 @@ public class FileServiceImpl implements FileService {
             FileVo fileVo = BeanConvertUtil.convertFileVo(thumbnail);
             String thumbnailFileKey = HoneyFileUtil.getThumbnailFileKey(fileKey);
             fileVo.setFileKey(thumbnailFileKey);
+            fileVo.setBucketName(bucketName);
             // 上传缩略图
             upload(fileVo, bucketName, contentType);
         }
