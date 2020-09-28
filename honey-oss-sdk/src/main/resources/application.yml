@@ -12,8 +12,7 @@ dubbo:
     protocol: zookeeper
     address: zookeeper://49.235.208.98:2181
   application:
-    name: honey-oss-server
-    register-consumer: true
+    name: honey-oss-sdk
 
 
 

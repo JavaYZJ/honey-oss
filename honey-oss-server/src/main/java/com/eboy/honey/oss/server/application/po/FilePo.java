@@ -52,6 +52,10 @@ public class FilePo {
      */
     private int fileState;
     /**
+     * 所属桶名
+     */
+    private String bucketName;
+    /**
      * 是否删除
      */
     private boolean isDeleted;

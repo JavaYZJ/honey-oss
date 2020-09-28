@@ -45,10 +45,10 @@ public class FileTest {
 
     @Test
     public void fileUpload() {
-        String pathName = "F:\\test.jpg";
+        String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\2.jpg";
         File file = new File(pathName);
-        String upload = fileService.upload(file, bucketName, MediaType.IMAGE_JPEG);
-        log.info("是否上传成功：{}", upload.isEmpty());
+        String upload = fileService.upload(file, "public", MediaType.IMAGE_JPEG);
+        log.info("是否上传成功：{}", !upload.isEmpty());
     }
 
     @Test
