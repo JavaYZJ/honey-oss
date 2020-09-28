@@ -1,13 +1,15 @@
 package com.eboy.honey.oss.server.file;
 
 import com.alibaba.fastjson.JSON;
+import com.eboy.honey.oss.constant.ImageType;
+import com.eboy.honey.oss.entiy.Thumbnail;
+import com.eboy.honey.oss.entiy.WaterMark;
 import com.eboy.honey.oss.server.application.service.FileService;
+import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.utils.HoneyFileUtil;
 import com.google.common.collect.Lists;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,9 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.imageio.ImageIO;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 
@@ -39,6 +39,9 @@ public class FileTest {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private ThumbnailService thumbnailService;
 
 
     // TODO 异步待优化再测试
@@ -93,37 +96,30 @@ public class FileTest {
         log.info(objectNameByFileKey);
     }
 
-    @SneakyThrows
-    @Test
-    public void thumbnail() {
-        File file = new File("F:\\yangzhijie520.jpeg");
-        FileInputStream inputStream = new FileInputStream(file);
-        Thumbnails.of(file).size(520, 520).toFile("F:\\yangzhijie_thumbnail.jpeg");
-
-        final File file1 = new File("F:\\yangzhijie_thumbnail.jpeg");
-        fileService.upload(file1, bucketName, MediaType.IMAGE_JPEG);
-    }
-
-    @SneakyThrows
-    @Test
-    public void thumbnail1() {
-        File file = new File("F:\\yangzhijie520.jpeg");
-        Thumbnails.of(file).scale(0.5f).toFile("F:\\yangzhijie_thumbnail5.jpeg");
-    }
-
-    @Test
-    @SneakyThrows
-    public void thumbnail2() {
-        File file = new File("F:\\yangzhijie520.jpeg");
-        Thumbnails.of(file).scale(1.0f).watermark(Positions.CENTER, ImageIO.read(new File("F:\\test.jpg")), 1.0f).toFile("F:\\test2.jpg");
-
-    }
-
 
     @Test
     public void test() {
-        File file = new File("F:\\test.jpg");
+        File file = new File("C:\\Users\\admin\\Pictures\\Saved Pictures\\5.jpg");
         String fileKey = fileService.uploadImage(file, bucketName, MediaType.IMAGE_JPEG, true);
+        String url = fileService.downAsUrl(bucketName, fileKey, 60);
+        log.info(url);
+    }
+
+    @Test
+    public void test1() {
+        File file = new File("C:\\Users\\admin\\Pictures\\Saved Pictures\\2.jpg");
+        Thumbnail thumbnail = new Thumbnail();
+        thumbnail.setInputSource(file);
+        thumbnail.setRotate(90d);
+        thumbnail.setOutputFormat(ImageType.PNG);
+        WaterMark waterMark = new WaterMark();
+        waterMark.setPositions(Positions.BOTTOM_LEFT);
+        waterMark.setTransparency(0.5f);
+        waterMark.setWaterMarkSource(new File("C:\\Users\\admin\\Pictures\\Saved Pictures\\5.jpg"));
+        thumbnail.setWaterMark(waterMark);
+        String fileKey = fileService.uploadImage(file, bucketName, MediaType.IMAGE_JPEG, thumbnail);
+        String url = thumbnailService.getUrlByOriginalPicture(bucketName, fileKey, 60);
+        log.info(url);
     }
 
 

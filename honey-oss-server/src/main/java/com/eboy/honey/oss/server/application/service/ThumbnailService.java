@@ -1,5 +1,6 @@
 package com.eboy.honey.oss.server.application.service;
 
+import com.eboy.honey.oss.constant.ImageType;
 import com.eboy.honey.oss.entiy.OutputMode;
 import com.eboy.honey.oss.entiy.Thumbnail;
 import com.eboy.honey.oss.server.application.utils.FilePathUtil;
@@ -84,7 +85,7 @@ public interface ThumbnailService {
      * @return 默认缩略图规则
      */
     default Thumbnail defaultThumbnail(File image) {
-        String thumbnailPath = FilePathUtil.defaultThumbnailPath();
+        String thumbnailPath = FilePathUtil.defaultThumbnailPath() + ImageType.JPEG;
         Thumbnail thumbnail = new Thumbnail();
         OutputMode outputMode = new OutputMode();
         outputMode.setFilePath(thumbnailPath);

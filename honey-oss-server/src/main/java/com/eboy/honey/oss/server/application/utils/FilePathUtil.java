@@ -46,6 +46,6 @@ public class FilePathUtil {
      */
     public static String defaultThumbnailPath() {
         String defaultPath = defaultPath();
-        return defaultPath + FILE_SEPARATOR + HoneyFileUtil.get32Uid() + ".jpeg";
+        return defaultPath + FILE_SEPARATOR + HoneyFileUtil.get32Uid() + ".";
     }
 }

@@ -319,15 +319,27 @@ public class FileServiceImpl implements FileService {
         String fileKey = upload(image, bucketName, contentType);
         if (needThumbnail) {
             Thumbnail defaultThumbnail = thumbnailService.defaultThumbnail(image);
-            String filePath = defaultThumbnail.getOutputMode().getFilePath();
-            File thumbnail = new File(filePath);
-            FileVo fileVo = BeanConvertUtil.convertFileVo(thumbnail);
-            String thumbnailFileKey = HoneyFileUtil.getThumbnailFileKey(fileKey);
-            fileVo.setFileKey(thumbnailFileKey);
-            fileVo.setBucketName(bucketName);
-            // 上传缩略图
-            upload(fileVo, bucketName, contentType);
+            thumbnailHandle(bucketName, contentType, fileKey, defaultThumbnail);
         }
+        return fileKey;
+    }
+
+
+    /**
+     * 自定义缩略图规则上传图片
+     *
+     * @param image       图片源
+     * @param bucketName  桶名
+     * @param contentType contentType
+     * @param thumbnail   缩略图规则
+     * @return 原图fileKey
+     */
+    @Override
+    public String uploadImage(File image, String bucketName, MediaType contentType, Thumbnail thumbnail) {
+        // 先上传原图
+        String fileKey = upload(image, bucketName, contentType);
+        thumbnailService.buildThumbnail(thumbnail);
+        thumbnailHandle(bucketName, contentType, fileKey, thumbnail);
         return fileKey;
     }
 
@@ -375,6 +387,25 @@ public class FileServiceImpl implements FileService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("fileKey not found"));
         return HoneyFileUtil.buildObjectNameByFileKey(fileName, fileKey);
+    }
+
+    /**
+     * 缩略图上传前组装
+     *
+     * @param bucketName       桶名
+     * @param contentType      contentType
+     * @param fileKey          原图的fileKey
+     * @param defaultThumbnail 缩略图构建规则
+     */
+    private void thumbnailHandle(String bucketName, MediaType contentType, String fileKey, Thumbnail defaultThumbnail) {
+        String filePath = defaultThumbnail.getOutputMode().getFilePath();
+        File thumbnail = new File(filePath);
+        FileVo fileVo = BeanConvertUtil.convertFileVo(thumbnail);
+        String thumbnailFileKey = HoneyFileUtil.getThumbnailFileKey(fileKey);
+        fileVo.setFileKey(thumbnailFileKey);
+        fileVo.setBucketName(bucketName);
+        // 上传缩略图
+        upload(fileVo, bucketName, contentType);
     }
 
 }
