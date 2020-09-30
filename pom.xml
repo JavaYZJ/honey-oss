@@ -11,6 +11,7 @@
     <modules>
         <module>honey-oss-server</module>
         <module>honey-oss-sdk</module>
+        <module>honey-oss-job</module>
     </modules>
     <properties>
         <java.version>1.8</java.version>
