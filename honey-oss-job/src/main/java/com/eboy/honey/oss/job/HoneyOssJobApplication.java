@@ -1,18 +1,18 @@
-package com.eboy.honey.oss;
+package com.eboy.honey.oss.job;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * honey-oss SDK
+ * honey-oss 任务调度服务
  *
- * @author yangzhijie
+ * @author yangzhijei
  */
 @SpringBootApplication
-public class HoneyOssSdkApplication {
+public class HoneyOssJobApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(HoneyOssSdkApplication.class, args);
+        SpringApplication.run(HoneyOssJobApplication.class, args);
     }
 
 }

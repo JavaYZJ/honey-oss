@@ -5,6 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
+ * honey-oss master server
+ *
  * @author yangzhijie
  */
 @SpringBootApplication

@@ -25,7 +25,6 @@ public class FileShardTest {
 
     @Test
     public void test() {
-
         String filePath = "F:\\yangzhijie520.jpeg";
         String desFile = "F:\\wangxiaocun520.jpeg";
         HoneyFileUtil.spiltFile(filePath, 3);

@@ -129,12 +129,13 @@ public class FileServiceImpl implements FileService {
             // 插入到数据库
             fileMapper.addFile(filePo);
         }
-        // 上传分片
         FileShardVo fileShardVo = fileVo.getFileShardVos().get(0);
-        fileShardService.addFileShard(fileShardVo);
         // 上传至MiniO
         String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileShardVo.getShardName(), fileShardVo.getFileKey());
         honeyMiniO.upload(bucketName, objectName, fileShardVo.getHoneyStream().getInputStream(), contentType);
+        // 上传分片到数据库
+        fileShardVo.setShardState(FileState.SUCCESS.getStateCode());
+        fileShardService.addFileShard(fileShardVo);
         return fileVo.getFileKey();
     }
 
