@@ -28,6 +28,7 @@
             ,(#{file.fileState})
         </if>
         ,#{file.bucketName})
+        ON DUPLICATE KEY UPDATE update_time = now()
     </insert>
     <select id="getFileByIds" resultType="com.eboy.honey.oss.server.application.po.FilePo">
         select
