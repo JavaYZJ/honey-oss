@@ -34,9 +34,9 @@ public interface FileService {
      * @param file        文件实体
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return fileKey
+     * @param callbackUrl 回调url
      */
-    String asyncUpload(File file, String bucketName, MediaType contentType);
+    void asyncUpload(File file, String bucketName, MediaType contentType, String callbackUrl);
 
     /**
      * 文件上传(不分片)
@@ -54,9 +54,9 @@ public interface FileService {
      * @param fileVo      文件实体
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return fileKey
+     * @param callbackUrl 回调url
      */
-    String asyncUpload(FileVo fileVo, String bucketName, MediaType contentType);
+    void asyncUpload(FileVo fileVo, String bucketName, MediaType contentType, String callbackUrl);
 
 
     /**
@@ -75,9 +75,9 @@ public interface FileService {
      * @param fileVo      文件
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return fileKey
+     * @param callbackUrl 回调url
      */
-    String asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType);
+    void asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType, String callbackUrl);
 
     /**
      * 下载为url

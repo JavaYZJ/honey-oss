@@ -44,8 +44,6 @@ public class FileTest {
     private ThumbnailService thumbnailService;
 
 
-    // TODO 异步待优化再测试
-
     @Test
     public void fileUpload() {
         String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\2.jpg";
@@ -55,8 +53,15 @@ public class FileTest {
     }
 
     @Test
+    public void fileUploadAsync() {
+        String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\6.jpg";
+        File file = new File(pathName);
+        fileService.asyncUpload(file, bucketName, MediaType.IMAGE_JPEG, "http://localhost:8089/rest/callback");
+    }
+
+    @Test
     public void downAsUrl() {
-        String url = fileService.downAsUrl(bucketName, "16661315f17605f6f922885cdf45fcc1", 60);
+        String url = fileService.downAsUrl(bucketName, "3788e6c1e7baa60d62492ba72149499f", 60);
         log.info(url);
     }
 

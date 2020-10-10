@@ -2,21 +2,25 @@ package com.eboy.honey.oss.server.application.service.impl;
 
 import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.dto.HoneyStream;
+import com.eboy.honey.oss.entiy.CallBack;
 import com.eboy.honey.oss.entiy.Thumbnail;
 import com.eboy.honey.oss.server.application.componet.AsyncTask;
 import com.eboy.honey.oss.server.application.dao.FileMapper;
 import com.eboy.honey.oss.server.application.po.FilePo;
+import com.eboy.honey.oss.server.application.service.CallBackService;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.FileShardService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.utils.ArgsCheckUtil;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
+import com.eboy.honey.oss.server.application.utils.CallBackUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
 import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,18 +43,17 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     private HoneyMiniO honeyMiniO;
-
     @Autowired
     private FileShardService fileShardService;
-
     @Autowired
     private ThumbnailService thumbnailService;
-
     @Autowired
     private FileMapper fileMapper;
-
     @Autowired
+    @Lazy
     private AsyncTask asyncTask;
+    @Autowired
+    private CallBackService<String> callBackService;
 
 
     /**
@@ -88,24 +91,27 @@ public class FileServiceImpl implements FileService {
      * @param fileVo      文件实体
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否成功
+     * @param callbackUrl 回调url
      */
     @Override
-    public String asyncUpload(FileVo fileVo, String bucketName, MediaType contentType) {
+    public void asyncUpload(FileVo fileVo, String bucketName, MediaType contentType, String callbackUrl) {
         // TODO 优化引入异步处理策略（1、http接口回调 2、MQ接受 3、短信等消息接受）
         // 参数校验
         ArgsCheckUtil.checkFile(fileVo, false);
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
         if (secondTransCheck(fileVo)) {
-            return fileVo.getFileKey();
+            CallBack<String> callBack = CallBackUtil.buildCallback(fileVo.getFileKey(), callbackUrl, 200, "success");
+            callBackService.callBack(callBack);
+            return;
         }
         // 创建文件信息
         FilePo filePo = BeanConvertUtil.convert(fileVo, FilePo.class);
+        filePo.setBucketName(bucketName);
         // 插入到数据库
         fileMapper.addFile(filePo);
         // 异步上传
-        asyncTask.asyncUpload(this, fileVo, bucketName, contentType);
-        return fileVo.getFileKey();
+        asyncTask.asyncUpload(fileVo, bucketName, contentType, callbackUrl);
+
     }
 
     /**
@@ -146,10 +152,9 @@ public class FileServiceImpl implements FileService {
      * @param fileVo      文件
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否成功
      */
     @Override
-    public String asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType) {
+    public void asyncUploadByShard(FileVo fileVo, String bucketName, MediaType contentType, String callbackUrl) {
         // TODO 引入异步处理策略（1、http接口回调 2、MQ接受 3、短信等消息接受）
         // 参数校验
         ArgsCheckUtil.checkFile(fileVo, true);
@@ -165,8 +170,7 @@ public class FileServiceImpl implements FileService {
         FileShardVo fileShardVo = fileVo.getFileShardVos().get(0);
         fileShardService.addFileShard(fileShardVo);
         // 异步上传分片
-        asyncTask.asyncUpload(fileShardService, fileShardVo, bucketName, contentType);
-        return fileVo.getFileKey();
+        asyncTask.asyncUpload(fileShardVo, bucketName, contentType, callbackUrl);
     }
 
     /**
@@ -175,13 +179,13 @@ public class FileServiceImpl implements FileService {
      * @param file        file
      * @param bucketName  桶名
      * @param contentType contentType
-     * @return 是否上传成功
+     * @param callbackUrl 回调url
      */
     @Override
-    public String asyncUpload(File file, String bucketName, MediaType contentType) {
+    public void asyncUpload(File file, String bucketName, MediaType contentType, String callbackUrl) {
         // 转换成fileVo
         FileVo fileVo = BeanConvertUtil.convertFileVo(file);
-        return asyncUpload(fileVo, bucketName, contentType);
+        asyncUpload(fileVo, bucketName, contentType, callbackUrl);
     }
 
     /**
