@@ -50,7 +50,7 @@ public interface FileMapper {
     /**
      * 更新文件状态
      *
-     * @param fileId    文件id
+     * @param fileKey   fileKey
      * @param fileState 文件状态
      * @return 是否成功
      */
