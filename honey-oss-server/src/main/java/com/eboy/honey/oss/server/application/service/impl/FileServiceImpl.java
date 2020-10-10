@@ -70,7 +70,7 @@ public class FileServiceImpl implements FileService {
         // 参数校验
         ArgsCheckUtil.checkFile(fileVo, false);
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
-        if (secondTransCheck(fileVo)) {
+        if (secondTransCheck(fileVo, bucketName)) {
             log.info("秒传");
             return fileVo.getFileKey();
         }
@@ -99,7 +99,7 @@ public class FileServiceImpl implements FileService {
         // 参数校验
         ArgsCheckUtil.checkFile(fileVo, false);
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
-        if (secondTransCheck(fileVo)) {
+        if (secondTransCheck(fileVo, bucketName)) {
             CallBack<String> callBack = CallBackUtil.buildCallback(fileVo.getFileKey(), callbackUrl, 200, "success");
             callBackService.callBack(callBack);
             return;
@@ -111,7 +111,6 @@ public class FileServiceImpl implements FileService {
         fileMapper.addFile(filePo);
         // 异步上传
         asyncTask.asyncUpload(fileVo, bucketName, contentType, callbackUrl);
-
     }
 
     /**
@@ -371,11 +370,11 @@ public class FileServiceImpl implements FileService {
     /**
      * 是否秒传检查
      */
-    private boolean secondTransCheck(FileVo fileVo) {
+    private boolean secondTransCheck(FileVo fileVo, String bucketName) {
         return fileMapper.getFileByFileKeys(
                 Collections.singletonList(fileVo.getFileKey()))
                 .stream()
-                .anyMatch(e -> e.getFileState() == FileState.SUCCESS.getStateCode()
+                .anyMatch(e -> e.getFileState() == FileState.SUCCESS.getStateCode() && bucketName.equals(e.getBucketName())
                 );
     }
 

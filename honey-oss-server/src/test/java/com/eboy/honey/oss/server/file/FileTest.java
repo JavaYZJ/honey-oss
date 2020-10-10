@@ -48,7 +48,7 @@ public class FileTest {
     public void fileUpload() {
         String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\2.jpg";
         File file = new File(pathName);
-        String upload = fileService.upload(file, "public", MediaType.IMAGE_JPEG);
+        String upload = fileService.upload(file, "public1", MediaType.IMAGE_JPEG);
         log.info("是否上传成功：{}", !upload.isEmpty());
     }
 
