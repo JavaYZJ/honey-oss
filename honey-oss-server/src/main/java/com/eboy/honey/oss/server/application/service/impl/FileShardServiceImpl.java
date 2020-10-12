@@ -3,13 +3,16 @@ package com.eboy.honey.oss.server.application.service.impl;
 import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.server.application.dao.FileShardMapper;
 import com.eboy.honey.oss.server.application.po.FileShardPo;
+import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.FileShardService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.ConcurrentShardVo;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +27,8 @@ public class FileShardServiceImpl implements FileShardService {
 
     @Autowired
     private FileShardMapper fileShardMapper;
+    @Autowired
+    private FileService fileService;
 
     /**
      * 添加文件分片信息
@@ -46,6 +51,21 @@ public class FileShardServiceImpl implements FileShardService {
     @Override
     public boolean updateFileShardState(String fileShardId, FileState fileShardState) {
         return fileShardMapper.updateFileShardState(fileShardId, fileShardState.getStateCode());
+    }
+
+    /**
+     * 合并文件分片
+     *
+     * @param fileKey fileKey
+     */
+    @Override
+    public void mergeFileShard(String fileKey) {
+        List<FileShardVo> fileShardVos = getFileShardInfoByFileKeys(Collections.singletonList(fileKey)).get(fileKey);
+        Assert.notNull(fileShardVos, "this fileKey not found file shard");
+        if (fileShardVos.stream().anyMatch(e -> e.getShardState() != FileState.SUCCESS.getStateCode())) {
+            throw new IllegalArgumentException("this fileKey corresponding the file shard not all int success state");
+        }
+        fileService.updateFileState(fileKey, FileState.SUCCESS);
     }
 
     /**
