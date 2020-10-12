@@ -1,10 +1,14 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.eboy.honey.oss.constant.CallbackEnum;
 import com.eboy.honey.oss.entiy.CallBack;
+import com.eboy.honey.oss.server.application.factory.CallbackFactory;
 import com.eboy.honey.oss.server.application.service.CallBackService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,9 +24,10 @@ import java.util.Map;
  * @author yangzhijie
  * @date 2020/10/9 11:40
  */
+@Primary
 @Service
 @Slf4j
-public class RestCallBackServiceImpl implements CallBackService<String> {
+public class RestCallBackServiceImpl implements CallBackService, InitializingBean {
 
     @Autowired
     private RestTemplate restTemplate;
@@ -33,7 +38,7 @@ public class RestCallBackServiceImpl implements CallBackService<String> {
      * @param callBack 回调结果对象
      */
     @Override
-    public void callBack(CallBack<String> callBack) {
+    public void callBack(CallBack callBack) {
         Assert.notNull(callBack, "callBackResponse not null");
         // 添加参数
         Map<String, Object> map = new HashMap<>();
@@ -48,5 +53,11 @@ public class RestCallBackServiceImpl implements CallBackService<String> {
         // 请求
         ResponseEntity<String> rs = restTemplate.postForEntity(callBack.getCallBackHttpUrl(), requestEntity, String.class);
         log.info("RestCallBackServiceImpl 回调结果：{}", JSON.toJSONString(rs.getBody()));
+    }
+
+
+    @Override
+    public void afterPropertiesSet() {
+        CallbackFactory.register(CallbackEnum.REST, this);
     }
 }

@@ -1,9 +1,10 @@
 package com.eboy.honey.oss.server.application.componet;
 
+import com.eboy.honey.oss.constant.CallbackEnum;
 import com.eboy.honey.oss.constant.FileState;
 import com.eboy.honey.oss.entiy.CallBack;
 import com.eboy.honey.oss.server.application.constant.CallbackConstant;
-import com.eboy.honey.oss.server.application.service.CallBackService;
+import com.eboy.honey.oss.server.application.factory.CallbackFactory;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.FileShardService;
 import com.eboy.honey.oss.server.application.utils.CallBackUtil;
@@ -13,6 +14,7 @@ import com.eboy.honey.oss.server.client.HoneyMiniO;
 import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -35,8 +37,8 @@ public class AsyncTask {
     private HoneyMiniO honeyMiniO;
     @Autowired
     private FileShardService fileShardService;
-    @Autowired
-    private CallBackService<String> callBackService;
+    @Value("${honey.oss.callback-type}")
+    private int callbackType;
 
     /**
      * 分片异步上传
@@ -58,8 +60,8 @@ public class AsyncTask {
             data = null;
         } finally {
             // 回调
-            CallBack<String> callBack = CallBackUtil.buildCallback(data, callbackUrl, code, msg);
-            callBackService.callBack(callBack);
+            CallBack callBack = CallBackUtil.buildCallback(data, callbackUrl, code, msg);
+            CallbackFactory.getCallbackService(CallbackEnum.getByCode(callbackType)).callBack(callBack);
         }
     }
 
@@ -83,8 +85,8 @@ public class AsyncTask {
             data = null;
         } finally {
             // 回调
-            CallBack<String> callBack = CallBackUtil.buildCallback(data, callbackUrl, code, msg);
-            callBackService.callBack(callBack);
+            CallBack callBack = CallBackUtil.buildCallback(data, callbackUrl, code, msg);
+            CallbackFactory.getCallbackService(CallbackEnum.getByCode(callbackType)).callBack(callBack);
         }
     }
 

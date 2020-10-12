@@ -6,8 +6,8 @@ import com.eboy.honey.oss.entiy.CallBack;
 import com.eboy.honey.oss.entiy.Thumbnail;
 import com.eboy.honey.oss.server.application.componet.AsyncTask;
 import com.eboy.honey.oss.server.application.dao.FileMapper;
+import com.eboy.honey.oss.server.application.factory.CallbackFactory;
 import com.eboy.honey.oss.server.application.po.FilePo;
-import com.eboy.honey.oss.server.application.service.CallBackService;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.FileShardService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
@@ -20,6 +20,7 @@ import com.eboy.honey.oss.server.client.HoneyMiniO;
 import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.eboy.honey.oss.constant.CallbackEnum.getByCode;
 
 /**
  * @author yangzhijie
@@ -52,9 +55,8 @@ public class FileServiceImpl implements FileService {
     @Autowired
     @Lazy
     private AsyncTask asyncTask;
-    @Autowired
-    private CallBackService<String> callBackService;
-
+    @Value("${honey.oss.callback-type}")
+    private int callbackType;
 
     /**
      * 直接单个上传（不分片）
@@ -100,8 +102,8 @@ public class FileServiceImpl implements FileService {
         ArgsCheckUtil.checkFile(fileVo, false);
         // 上传前检查一下服务里是否有其他用户已经上传过该文件，如果有，则实现秒传
         if (secondTransCheck(fileVo, bucketName)) {
-            CallBack<String> callBack = CallBackUtil.buildCallback(fileVo.getFileKey(), callbackUrl, 200, "success");
-            callBackService.callBack(callBack);
+            CallBack callBack = CallBackUtil.buildCallback(fileVo.getFileKey(), callbackUrl, 200, "success");
+            CallbackFactory.getCallbackService(getByCode(callbackType)).callBack(callBack);
             return;
         }
         // 创建文件信息
