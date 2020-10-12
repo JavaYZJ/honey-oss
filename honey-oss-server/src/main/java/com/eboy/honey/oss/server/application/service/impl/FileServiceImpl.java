@@ -44,6 +44,9 @@ import static com.eboy.honey.oss.constant.CallbackEnum.getByCode;
 @Slf4j
 public class FileServiceImpl implements FileService {
 
+    @Value("${honey.oss.callback-type}")
+    private int callbackType;
+
     @Autowired
     private HoneyMiniO honeyMiniO;
     @Autowired
@@ -52,11 +55,10 @@ public class FileServiceImpl implements FileService {
     private ThumbnailService thumbnailService;
     @Autowired
     private FileMapper fileMapper;
-    @Autowired
     @Lazy
+    @Autowired
     private AsyncTask asyncTask;
-    @Value("${honey.oss.callback-type}")
-    private int callbackType;
+
 
     /**
      * 直接单个上传（不分片）
