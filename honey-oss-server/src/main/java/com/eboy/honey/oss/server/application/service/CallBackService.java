@@ -6,7 +6,7 @@ import com.eboy.honey.oss.entiy.CallBack;
  * @author yangzhijie
  * @date 2020/10/9 11:37
  */
-public interface CallBackService<T> {
+public interface CallBackService {
 
 
     /**
@@ -14,5 +14,5 @@ public interface CallBackService<T> {
      *
      * @param callBack 回调结果对象
      */
-    void callBack(CallBack<T> callBack);
+    void callBack(CallBack callBack);
 }

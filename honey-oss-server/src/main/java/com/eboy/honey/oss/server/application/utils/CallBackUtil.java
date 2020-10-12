@@ -8,8 +8,8 @@ import com.eboy.honey.oss.entiy.CallBack;
  */
 public class CallBackUtil {
 
-    public static CallBack<String> buildCallback(String data, String callbackUrl, int code, String msg) {
-        CallBack<String> callBack = new CallBack<>();
+    public static CallBack buildCallback(String data, String callbackUrl, int code, String msg) {
+        CallBack callBack = new CallBack();
         callBack.setCode(code);
         callBack.setCallBackHttpUrl(callbackUrl);
         callBack.setMsg(msg);

@@ -13,6 +13,7 @@ mybatis:
   mapper-locations: classpath*:/META-INF/mapper/*.xml
 honey:
   oss:
+    callback-type: 0
     minio:
       url: http://192.168.200.211:9000
       accesskey: HONEYOSS
