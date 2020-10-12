@@ -63,7 +63,7 @@ public class FileShardServiceImpl implements FileShardService {
         List<FileShardVo> fileShardVos = getFileShardInfoByFileKeys(Collections.singletonList(fileKey)).get(fileKey);
         Assert.notNull(fileShardVos, "this fileKey not found file shard");
         if (fileShardVos.stream().anyMatch(e -> e.getShardState() != FileState.SUCCESS.getStateCode())) {
-            throw new IllegalArgumentException("this fileKey corresponding the file shard not all int success state");
+            throw new IllegalArgumentException("this fileKey corresponding the file shard not all is success state");
         }
         fileService.updateFileState(fileKey, FileState.SUCCESS);
     }
