@@ -31,6 +31,13 @@ public interface FileShardService {
     boolean updateFileShardState(String fileShardId, FileState fileShardState);
 
     /**
+     * 合并文件分片
+     *
+     * @param fileKey fileKey
+     */
+    void mergeFileShard(String fileKey);
+
+    /**
      * 根据文件fileKey获取分片信息
      *
      * @param fileKeys 文件fileKeys

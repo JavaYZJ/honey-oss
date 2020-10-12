@@ -122,6 +122,7 @@ public class FileServiceImpl implements FileService {
      * @param bucketName  桶名
      * @param contentType contentType
      * @return 是否成功
+     * @deprecated since v1.0
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
