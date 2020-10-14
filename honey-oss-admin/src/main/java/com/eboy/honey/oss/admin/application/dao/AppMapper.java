@@ -1,7 +1,8 @@
-package com.eboy.honey.oss.server.application.dao;
+package com.eboy.honey.oss.admin.application.dao;
 
-import com.eboy.honey.oss.server.application.constant.AppStateEnum;
-import com.eboy.honey.oss.server.application.po.AppPo;
+
+import com.eboy.honey.oss.admin.application.constant.AppStateEnum;
+import com.eboy.honey.oss.admin.application.entity.po.AppPo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

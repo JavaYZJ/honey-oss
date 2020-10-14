@@ -1,7 +1,8 @@
-package com.eboy.honey.oss.server.application.service;
+package com.eboy.honey.oss.admin.application.service;
 
-import com.eboy.honey.oss.server.application.constant.AppStateEnum;
-import com.eboy.honey.oss.server.application.vo.AppVo;
+
+import com.eboy.honey.oss.admin.application.constant.AppStateEnum;
+import com.eboy.honey.oss.admin.application.entity.vo.AppVo;
 import com.github.pagehelper.PageInfo;
 
 /**

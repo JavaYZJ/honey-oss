@@ -1,4 +1,4 @@
-package com.eboy.honey.oss.server.application.po;
+package com.eboy.honey.oss.admin.application.entity.po;
 
 import lombok.Data;
 

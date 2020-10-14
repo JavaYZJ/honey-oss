@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eboy.honey.oss.admin.application.dao.UserMapper">
+
+
+    <sql id="base_field">user_id,user_name,user_password,user_pw_salt,create_time,update_time</sql>
+    <select id="login">
+        select
+        <include refid="base_field"/>
+        from t_user
+        where user_id = #{userId} and user_password = #{userPassword} and is_deleted = 0
+    </select>
+    <select id="findUserByIds" resultType="com.eboy.honey.oss.admin.application.entity.po.UserPo">
+        select
+        <include refid="base_field"/>
+        from t_user
+        where user_id in
+        <foreach item="item" index="index" collection="userIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_deleted = 0
+    </select>
+
+
+</mapper>
