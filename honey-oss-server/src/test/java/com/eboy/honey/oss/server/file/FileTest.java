@@ -61,7 +61,7 @@ public class FileTest {
 
     @Test
     public void downAsUrl() {
-        String url = fileService.downAsUrl(bucketName, "3788e6c1e7baa60d62492ba72149499f", 60);
+        String url = fileService.downAsUrl(bucketName, "4ad9e9316fca2d7238ed8bf380bfc6b1", 60);
         log.info(url);
     }
 
