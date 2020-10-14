@@ -33,3 +33,9 @@ dubbo:
     address: zookeeper://49.235.208.98:2181
   application:
     name: honey-oss-server
+pagehelper:
+  helper-dialect: mysql
+  reasonable: false
+  support-methods-arguments: true
+  page-size-zero: false
+  params: count=countSql

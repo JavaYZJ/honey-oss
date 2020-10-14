@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eboy.honey.oss.server.application.dao.AppMapper">
+
+
+    <sql id="base_field">app_id, app_name, app_state, state_reason, create_time, update_time</sql>
+    <select id="getAppInfoById" resultType="com.eboy.honey.oss.server.application.po.AppPo">
+        select
+        <include refid="base_field"/>
+        from t_app
+        where app_id = #{appId} and is_deleted = 0
+    </select>
+    <update id="updateAppState">
+        update t_app
+        set app_state = #{appStateEnum.code}
+        <if test="reason != null and reason != ''">, state_reason = #{reason}</if>
+        where app_id = #{appId}
+        and is_deleted = 0
+    </update>
+    <select id="getAllApp" resultType="com.eboy.honey.oss.server.application.po.AppPo">
+        select
+        <include refid="base_field"/>
+        from t_app
+        where is_deleted = 0
+    </select>
+    <select id="countApp" resultType="long">
+        select count(*)
+        from t_app
+        where is_deleted = 0
+    </select>
+    <insert id="addApp">
+        insert into t_app(app_id, app_name)
+        values (#{appPo.appId}, #{appPo.appName})
+    </insert>
+
+</mapper>
