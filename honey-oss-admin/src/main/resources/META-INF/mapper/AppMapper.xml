@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.eboy.honey.oss.server.application.dao.AppMapper">
+<mapper namespace="com.eboy.honey.oss.admin.application.dao.AppMapper">
 
 
     <sql id="base_field">app_id, app_name, app_state, state_reason, create_time, update_time</sql>
-    <select id="getAppInfoById" resultType="com.eboy.honey.oss.server.application.po.AppPo">
+    <select id="getAppInfoById" resultType="com.eboy.honey.oss.admin.application.entity.po.AppPo">
         select
         <include refid="base_field"/>
         from t_app
@@ -17,7 +17,7 @@
         where app_id = #{appId}
         and is_deleted = 0
     </update>
-    <select id="getAllApp" resultType="com.eboy.honey.oss.server.application.po.AppPo">
+    <select id="getAllApp" resultType="com.eboy.honey.oss.admin.application.entity.po.AppPo">
         select
         <include refid="base_field"/>
         from t_app

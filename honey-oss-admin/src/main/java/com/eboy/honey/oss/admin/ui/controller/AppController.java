@@ -1,8 +1,9 @@
-package com.eboy.honey.oss.server.api.web.controller;
+package com.eboy.honey.oss.admin.ui.controller;
 
-import com.eboy.honey.oss.server.application.constant.AppStateEnum;
-import com.eboy.honey.oss.server.application.service.AppService;
-import com.eboy.honey.oss.server.application.vo.AppVo;
+
+import com.eboy.honey.oss.admin.application.constant.AppStateEnum;
+import com.eboy.honey.oss.admin.application.entity.vo.AppVo;
+import com.eboy.honey.oss.admin.application.service.AppService;
 import com.eboy.honey.response.commmon.HoneyResponse;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;

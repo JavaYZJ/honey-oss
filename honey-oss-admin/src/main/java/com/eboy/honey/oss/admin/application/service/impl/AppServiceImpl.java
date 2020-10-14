@@ -1,12 +1,12 @@
-package com.eboy.honey.oss.server.application.service.impl;
+package com.eboy.honey.oss.admin.application.service.impl;
 
-import com.eboy.honey.oss.server.application.constant.AppStateEnum;
-import com.eboy.honey.oss.server.application.dao.AppMapper;
-import com.eboy.honey.oss.server.application.po.AppPo;
-import com.eboy.honey.oss.server.application.service.AppService;
-import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
-import com.eboy.honey.oss.server.application.vo.AppVo;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
+import com.eboy.honey.oss.admin.application.constant.AppStateEnum;
+import com.eboy.honey.oss.admin.application.dao.AppMapper;
+import com.eboy.honey.oss.admin.application.entity.po.AppPo;
+import com.eboy.honey.oss.admin.application.entity.vo.AppVo;
+import com.eboy.honey.oss.admin.application.service.AppService;
+import com.eboy.honey.oss.admin.application.utils.BeanConvertUtil;
+import com.eboy.honey.oss.admin.application.utils.CommonUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public class AppServiceImpl implements AppService {
      */
     @Override
     public void addApp(AppVo appVo) {
-        appVo.setAppId(HoneyFileUtil.get32Uid());
+        appVo.setAppId(CommonUtil.get32Uid());
         appMapper.addApp(BeanConvertUtil.convert(appVo, AppPo.class));
     }
 
