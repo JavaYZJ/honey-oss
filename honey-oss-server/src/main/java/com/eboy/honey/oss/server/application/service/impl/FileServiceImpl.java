@@ -218,7 +218,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public String downAsUrl(String bucketName, String fileKey) {
-        String objectName = objectName(fileKey);
+        String objectName = objectName(fileKey, bucketName);
         return honeyMiniO.downAsUrl(bucketName, objectName);
     }
 
@@ -232,7 +232,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public String downAsUrl(String bucketName, String fileKey, Integer expires) {
-        String objectName = objectName(fileKey);
+        String objectName = objectName(fileKey, bucketName);
         return honeyMiniO.downAsUrl(bucketName, objectName, expires);
     }
 
@@ -245,7 +245,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public InputStream downAsStream(String bucketName, String fileKey) {
-        String objectName = objectName(fileKey);
+        String objectName = objectName(fileKey, bucketName);
         return honeyMiniO.downAsStream(bucketName, objectName);
     }
 
@@ -271,7 +271,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void down2Local(String bucketName, String fileKey, String fileDownPath) {
-        String objectName = objectName(fileKey);
+        String objectName = objectName(fileKey, bucketName);
         honeyMiniO.down2Local(bucketName, objectName, fileDownPath);
     }
 
@@ -389,9 +389,10 @@ public class FileServiceImpl implements FileService {
      * @param fileKey 文件fileKey
      * @return objectName
      */
-    private String objectName(String fileKey) {
+    private String objectName(String fileKey, String bucketName) {
         String fileName = getFileByFileKeys(Collections.singletonList(fileKey))
                 .stream()
+                .filter(e -> e.getBucketName().equals(bucketName))
                 .map(FileVo::getFileName)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("fileKey not found"));

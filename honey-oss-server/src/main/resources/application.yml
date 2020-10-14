@@ -6,7 +6,10 @@ spring:
     username: root
     password: yangzhijie@cvte.com
   application:
-    name:
+    name: honey-oss-server
+  servlet:
+    multipart:
+      enabled: true
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
