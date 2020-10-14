@@ -3,6 +3,7 @@ package com.eboy.honey.oss.server.application.utils;
 import com.eboy.honey.oss.dto.HoneyStream;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.utils.HoneyFileUtil;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +36,13 @@ public class BeanConvertUtil {
             throw new RuntimeException("bean convert fail");
         }
 
+    }
+
+    public static <S, T> PageInfo<T> pageInfoConvert(PageInfo<S> source, Class<T> clazz) {
+        PageInfo<T> target = new PageInfo<>();
+        BeanUtils.copyProperties(source, target);
+        target.setList(BeanConvertUtil.convertByList(source.getList(), clazz));
+        return target;
     }
 
     /**
