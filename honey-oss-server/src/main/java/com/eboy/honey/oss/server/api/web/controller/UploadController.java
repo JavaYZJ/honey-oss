@@ -23,32 +23,60 @@ public class UploadController {
     @Autowired
     private FileService fileService;
 
-    @PostMapping("/sync")
-    public HoneyResponse<String> upload(MultipartFile file, String bucketName) {
+    /**
+     * 通用上传
+     *
+     * @param file       文件
+     * @param bucketName 桶名
+     */
+    @PostMapping("/sync/{bucketName}")
+    public HoneyResponse<String> upload(MultipartFile file, @PathVariable String bucketName) {
         File upload = HoneyIOUtil.multipartFile2File(file);
         String fileKey = fileService.upload(upload, bucketName, MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())));
         return HoneyResponse.success(fileKey);
     }
 
-    @PostMapping("/async")
-    public HoneyResponse asyncUpload(MultipartFile file, String bucketName, String callbackUrl) {
+    /**
+     * 通用异步上传
+     *
+     * @param file        文件
+     * @param bucketName  桶名
+     * @param callbackUrl 回调接口url
+     */
+    @PostMapping("/async/{bucketName}")
+    public HoneyResponse asyncUpload(MultipartFile file, @PathVariable String bucketName, String callbackUrl) {
         File upload = HoneyIOUtil.multipartFile2File(file);
         fileService.asyncUpload(upload, bucketName, MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())), callbackUrl);
         return HoneyResponse.success();
     }
 
-    @PostMapping("/image")
-    public HoneyResponse<String> image(MultipartFile file, String bucketName,
+    /**
+     * 图片上传
+     *
+     * @param file          图片
+     * @param bucketName    桶名
+     * @param needThumbnail 是否需要缩略图(需要时，则为默认的缩略图)
+     */
+    @PostMapping("/image/{bucketName}")
+    public HoneyResponse<String> image(MultipartFile file, @PathVariable String bucketName,
                                        @RequestParam(defaultValue = "false") boolean needThumbnail) {
         File upload = HoneyIOUtil.multipartFile2File(file);
         String image = fileService.uploadImage(upload, bucketName, MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())), needThumbnail);
         return HoneyResponse.success(image);
     }
 
-    @PostMapping("/thumbnail")
-    public HoneyResponse<String> thumbnail(MultipartFile file, String bucketName, @RequestBody Thumbnail thumbnail) {
+    /**
+     * 有缩略图构建规则的图片上传
+     *
+     * @param file       图片
+     * @param bucketName 桶名
+     * @param thumbnail  缩略图构建规则
+     */
+    @PutMapping("/image/{bucketName}")
+    public HoneyResponse<String> image(MultipartFile file, @PathVariable String bucketName, @RequestBody Thumbnail thumbnail) {
         File upload = HoneyIOUtil.multipartFile2File(file);
         String image = fileService.uploadImage(upload, bucketName, MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())), thumbnail);
         return HoneyResponse.success(image);
     }
+
 }
