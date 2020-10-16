@@ -43,7 +43,7 @@ public class AsyncTask {
     /**
      * 分片异步上传
      */
-    @Async
+    @Async("asyncExecutor")
     public void asyncUpload(FileShardVo fileShardVo, String bucketName, MediaType contentType, String callbackUrl) {
         String msg = CallbackConstant.CALL_BACK_SUCCESS_MSG;
         String data = fileShardVo.getFileKey();
@@ -68,7 +68,7 @@ public class AsyncTask {
     /**
      * 异步上传
      */
-    @Async
+    @Async("asyncExecutor")
     public void asyncUpload(FileVo fileVo, String bucketName, MediaType contentType, String callbackUrl) {
         String msg = CallbackConstant.CALL_BACK_SUCCESS_MSG;
         String data = fileVo.getFileKey();
@@ -95,7 +95,7 @@ public class AsyncTask {
      *
      * @deprecated
      */
-    @Async
+    @Async("asyncExecutor")
     public void asyncCheckAndMerge(FileShardVo fileShardVo) {
         List<FileVo> fileInfos = fileService.getFileByFileKeys(Collections.singletonList(fileShardVo.getFileKey()));
         if (!CollectionUtils.isEmpty(fileInfos)) {
