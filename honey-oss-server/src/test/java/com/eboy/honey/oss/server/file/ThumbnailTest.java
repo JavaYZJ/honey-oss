@@ -1,8 +1,8 @@
 package com.eboy.honey.oss.server.file;
 
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;

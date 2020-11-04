@@ -1,9 +1,9 @@
 package com.eboy.honey.oss.server.api.web.controller;
 
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.utils.HoneyIOUtil;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import com.eboy.honey.response.commmon.HoneyResponse;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class DownController {
     @GetMapping("/url/{bucketName}/{fileKey}")
     public HoneyResponse<String> downAsUrl(@PathVariable String fileKey, @PathVariable String bucketName,
                                            @RequestParam(required = false, defaultValue = "604800") Integer expires) {
-        return HoneyResponse.success(fileService.downAsUrl(fileKey, bucketName, expires));
+        return HoneyResponse.success(fileService.downAsUrl(bucketName, fileKey, expires));
     }
 
     /**

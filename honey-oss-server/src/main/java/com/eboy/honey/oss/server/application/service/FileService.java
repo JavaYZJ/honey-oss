@@ -1,9 +1,9 @@
 package com.eboy.honey.oss.server.application.service;
 
 
-import com.eboy.honey.oss.constant.FileState;
-import com.eboy.honey.oss.dto.HoneyStream;
-import com.eboy.honey.oss.entiy.Thumbnail;
+import com.eboy.honey.oss.api.constant.FileState;
+import com.eboy.honey.oss.api.dto.HoneyStream;
+import com.eboy.honey.oss.api.entiy.Thumbnail;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.springframework.http.MediaType;
 

@@ -1,7 +1,7 @@
 package com.eboy.honey.oss.server.application.utils;
 
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.springframework.http.HttpHeaders;

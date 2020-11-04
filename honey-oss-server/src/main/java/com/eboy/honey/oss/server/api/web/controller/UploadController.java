@@ -1,6 +1,6 @@
 package com.eboy.honey.oss.server.api.web.controller;
 
-import com.eboy.honey.oss.entiy.Thumbnail;
+import com.eboy.honey.oss.api.entiy.Thumbnail;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.utils.HoneyIOUtil;
 import com.eboy.honey.response.commmon.HoneyResponse;

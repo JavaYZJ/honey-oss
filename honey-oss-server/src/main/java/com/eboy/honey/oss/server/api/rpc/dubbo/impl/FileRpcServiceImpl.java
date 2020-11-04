@@ -1,14 +1,14 @@
 package com.eboy.honey.oss.server.api.rpc.dubbo.impl;
 
 
-import com.eboy.honey.oss.constant.FileState;
-import com.eboy.honey.oss.dto.FileDto;
-import com.eboy.honey.oss.dto.HoneyStream;
-import com.eboy.honey.oss.dubbo.FileRpcService;
+import com.eboy.honey.oss.api.constant.FileState;
+import com.eboy.honey.oss.api.dto.FileDto;
+import com.eboy.honey.oss.api.dto.HoneyStream;
+import com.eboy.honey.oss.api.service.FileRpcService;
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

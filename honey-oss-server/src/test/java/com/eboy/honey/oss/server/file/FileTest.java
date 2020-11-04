@@ -1,13 +1,14 @@
 package com.eboy.honey.oss.server.file;
 
+import cn.xsshome.taip.vision.TAipVision;
 import com.alibaba.fastjson.JSON;
-import com.eboy.honey.oss.constant.ImageType;
-import com.eboy.honey.oss.entiy.Thumbnail;
-import com.eboy.honey.oss.entiy.WaterMark;
+import com.eboy.honey.oss.api.constant.ImageType;
+import com.eboy.honey.oss.api.entiy.Thumbnail;
+import com.eboy.honey.oss.api.entiy.WaterMark;
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.vo.FileVo;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.geometry.Positions;
@@ -37,6 +38,11 @@ public class FileTest {
     @Value("${honey.oss.minio.bucketName}")
     private String bucketName;
 
+    @Value("${honey.oss.appId}")
+    private String appId;
+    @Value("${honey.oss.appKey}")
+    private String appKey;
+
     @Autowired
     private FileService fileService;
 
@@ -61,13 +67,13 @@ public class FileTest {
 
     @Test
     public void downAsUrl() {
-        String url = fileService.downAsUrl(bucketName, "4ad9e9316fca2d7238ed8bf380bfc6b1", 60);
+        String url = fileService.downAsUrl(bucketName, "52c1db014d80bd4b4dbf7fe1bc37a3c5", 60);
         log.info(url);
     }
 
     @Test
     public void downAsUrl1() {
-        String url = fileService.downAsUrl(bucketName, "b7572e9f8bdc3d7968af1445055e287e");
+        String url = fileService.downAsUrl(bucketName, "52c1db014d80bd4b4dbf7fe1bc37a3c5");
         log.info(url);
     }
 
@@ -127,5 +133,11 @@ public class FileTest {
         log.info(url);
     }
 
+    @Test
+    public void pornTest() throws Exception {
+        TAipVision aipVision = new TAipVision(appId, appKey);
+        String rs = aipVision.visionPornByURL("https://image.baidu.com/search/detail?ct=503316480&z=undefined&tn=baiduimagedetail&ipn=d&word=huangse&step_word=&ie=utf-8&in=&cl=undefined&lm=undefined&st=undefined&hd=undefined&latest=undefined&copyright=undefined&cs=1953689970,1496824567&os=3074260117,539067031&simid=3365255763,111285436&pn=4&rn=1&di=113740&ln=1786&fr=&fmq=1604383086349_R&fm=&ic=undefined&s=undefined&se=&sme=&tab=0&width=undefined&height=undefined&face=undefined&is=0,0&istype=0&ist=&jit=&bdtype=0&spn=0&pi=0&gsm=0&objurl=http%3A%2F%2Fbpic.588ku.com%2Felement_origin_min_pic%2F17%2F02%2F04%2F4143b4c2a84874d841952bc29e911ada.jpg%2521%2Ffwfh%2F804x723%2Fquality%2F90%2Funsharp%2Ftrue%2Fcompress%2Ftrue&rpstart=0&rpnum=0&adpicid=0&force=undefined&ctd=1604383091856^3_1903X903%1");
+        log.info(JSON.toJSONString(rs));
+    }
 
 }
