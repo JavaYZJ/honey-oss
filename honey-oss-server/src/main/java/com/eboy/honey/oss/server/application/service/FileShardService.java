@@ -1,6 +1,6 @@
 package com.eboy.honey.oss.server.application.service;
 
-import com.eboy.honey.oss.constant.FileState;
+import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.server.application.vo.ConcurrentShardVo;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 

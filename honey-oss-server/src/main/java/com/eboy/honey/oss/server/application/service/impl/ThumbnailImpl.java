@@ -1,15 +1,15 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
-import com.eboy.honey.oss.entiy.OutputMode;
-import com.eboy.honey.oss.entiy.Region;
-import com.eboy.honey.oss.entiy.Thumbnail;
-import com.eboy.honey.oss.entiy.WaterMark;
+import com.eboy.honey.oss.api.entiy.OutputMode;
+import com.eboy.honey.oss.api.entiy.Region;
+import com.eboy.honey.oss.api.entiy.Thumbnail;
+import com.eboy.honey.oss.api.entiy.WaterMark;
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.service.ThumbnailService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.utils.FilePathUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;

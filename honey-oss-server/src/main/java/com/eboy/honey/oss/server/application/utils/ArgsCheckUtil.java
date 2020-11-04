@@ -1,6 +1,7 @@
 package com.eboy.honey.oss.server.application.utils;
 
-import com.eboy.honey.oss.dto.HoneyStream;
+
+import com.eboy.honey.oss.api.dto.HoneyStream;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.apache.http.util.Asserts;

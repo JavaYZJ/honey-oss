@@ -1,6 +1,6 @@
 package com.eboy.honey.oss.server.application.vo;
 
-import com.eboy.honey.oss.dto.HoneyStream;
+import com.eboy.honey.oss.api.dto.HoneyStream;
 import lombok.Data;
 
 import java.util.Date;

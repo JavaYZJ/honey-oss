@@ -1,6 +1,6 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
-import com.eboy.honey.oss.constant.FileState;
+import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.server.application.dao.FileShardMapper;
 import com.eboy.honey.oss.server.application.po.FileShardPo;
 import com.eboy.honey.oss.server.application.service.FileService;

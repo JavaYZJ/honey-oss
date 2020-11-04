@@ -1,6 +1,6 @@
 package com.eboy.honey.oss.server.application.service;
 
-import com.eboy.honey.oss.entiy.CallBack;
+import com.eboy.honey.oss.api.entiy.CallBack;
 
 /**
  * @author yangzhijie

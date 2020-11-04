@@ -1,6 +1,7 @@
 package com.eboy.honey.oss.server.application.utils;
 
-import com.eboy.honey.oss.utils.HoneyFileUtil;
+
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 
 import java.io.File;
 

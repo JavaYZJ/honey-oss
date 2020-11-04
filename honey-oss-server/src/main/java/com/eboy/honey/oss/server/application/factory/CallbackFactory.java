@@ -1,6 +1,6 @@
 package com.eboy.honey.oss.server.application.factory;
 
-import com.eboy.honey.oss.constant.CallbackEnum;
+import com.eboy.honey.oss.api.constant.CallbackEnum;
 import com.eboy.honey.oss.server.application.service.CallBackService;
 import org.springframework.util.Assert;
 

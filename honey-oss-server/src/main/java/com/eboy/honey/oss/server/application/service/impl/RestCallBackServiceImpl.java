@@ -1,8 +1,8 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.eboy.honey.oss.constant.CallbackEnum;
-import com.eboy.honey.oss.entiy.CallBack;
+import com.eboy.honey.oss.api.constant.CallbackEnum;
+import com.eboy.honey.oss.api.entiy.CallBack;
 import com.eboy.honey.oss.server.application.factory.CallbackFactory;
 import com.eboy.honey.oss.server.application.service.CallBackService;
 import lombok.extern.slf4j.Slf4j;

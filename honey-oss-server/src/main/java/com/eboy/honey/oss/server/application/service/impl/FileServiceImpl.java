@@ -1,9 +1,11 @@
 package com.eboy.honey.oss.server.application.service.impl;
 
-import com.eboy.honey.oss.constant.FileState;
-import com.eboy.honey.oss.dto.HoneyStream;
-import com.eboy.honey.oss.entiy.CallBack;
-import com.eboy.honey.oss.entiy.Thumbnail;
+
+import com.eboy.honey.oss.api.constant.FileState;
+import com.eboy.honey.oss.api.dto.HoneyStream;
+import com.eboy.honey.oss.api.entiy.CallBack;
+import com.eboy.honey.oss.api.entiy.Thumbnail;
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.componet.AsyncTask;
 import com.eboy.honey.oss.server.application.dao.FileMapper;
 import com.eboy.honey.oss.server.application.factory.CallbackFactory;
@@ -17,7 +19,6 @@ import com.eboy.honey.oss.server.application.utils.CallBackUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import com.eboy.honey.oss.server.client.HoneyMiniO;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.eboy.honey.oss.constant.CallbackEnum.getByCode;
+import static com.eboy.honey.oss.api.constant.CallbackEnum.getByCode;
+
 
 /**
  * @author yangzhijie

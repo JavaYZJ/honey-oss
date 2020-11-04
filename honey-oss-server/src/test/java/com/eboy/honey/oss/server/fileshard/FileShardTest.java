@@ -1,7 +1,7 @@
 package com.eboy.honey.oss.server.fileshard;
 
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.service.FileService;
-import com.eboy.honey.oss.utils.HoneyFileUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
