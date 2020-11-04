@@ -13,6 +13,14 @@ dubbo:
     address: zookeeper://49.235.208.98:2181
   application:
     name: honey-oss-sdk
-
-
+honey:
+  oss:
+    callback-type: 0
+    appId: 2157104550
+    appKey: v7FCd5UZOyRqNxSL
+    minio:
+      url: http://192.168.200.211:9000
+      accesskey: HONEYOSS
+      secretkey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+      bucketName: honey-oss-dev
 
