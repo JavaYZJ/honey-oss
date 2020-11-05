@@ -49,6 +49,11 @@ public class FileVo {
      * 所属桶名
      */
     private String bucketName;
+
+    /**
+     * 文件状态 0-上传中 1-上传成功 2-上传失败
+     */
+    private Integer fileState;
     /**
      * 流
      */

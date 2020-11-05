@@ -1,7 +1,7 @@
 package com.eboy.honeyoss.demo;
 
 
-import com.eboy.honey.oss.api.service.FileRpcService;
+import com.eboy.honey.oss.api.service.dubbo.FileRpcService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
 import org.junit.Test;

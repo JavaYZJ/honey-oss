@@ -4,16 +4,14 @@ package com.eboy.honey.oss.server.api.rpc.dubbo.impl;
 import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.api.dto.FileDto;
 import com.eboy.honey.oss.api.dto.HoneyStream;
-import com.eboy.honey.oss.api.service.FileRpcService;
+import com.eboy.honey.oss.api.service.dubbo.FileRpcService;
 import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
@@ -26,48 +24,6 @@ public class FileRpcServiceImpl implements FileRpcService {
 
     @Autowired
     private FileService fileService;
-
-
-    /**
-     * 上传文件(不分片)
-     *
-     * @param file        文件实体
-     * @param bucketName  桶名
-     * @param contentType contentType
-     * @return fileKey
-     */
-    @Override
-    public String upload(File file, String bucketName, MediaType contentType) {
-        return fileService.upload(file, bucketName, contentType);
-    }
-
-    /**
-     * 文件上传(不分片)
-     *
-     * @param fileDto     文件实体
-     * @param bucketName  桶名
-     * @param contentType contentType
-     * @return fileKey
-     */
-    @Override
-    public String upload(FileDto fileDto, String bucketName, MediaType contentType) {
-        FileVo fileVo = BeanConvertUtil.convert(fileDto, FileVo.class);
-        return fileService.upload(fileVo, bucketName, contentType);
-    }
-
-    /**
-     * 分片上传
-     *
-     * @param fileDto     文件
-     * @param bucketName  桶名
-     * @param contentType contentType
-     * @return fileKey
-     */
-    @Override
-    public String uploadByShard(FileDto fileDto, String bucketName, MediaType contentType) {
-        FileVo fileVo = BeanConvertUtil.convert(fileDto, FileVo.class);
-        return fileService.uploadByShard(fileVo, bucketName, contentType);
-    }
 
     /**
      * 下载为url
@@ -187,19 +143,5 @@ public class FileRpcServiceImpl implements FileRpcService {
     @Override
     public boolean updateFileState(String fileKey, FileState fileState) {
         return fileService.updateFileState(fileKey, fileState);
-    }
-
-    /**
-     * 上传图片
-     *
-     * @param image         图片源
-     * @param bucketName    桶名
-     * @param contentType   contentType
-     * @param needThumbnail 是否需要缩略图
-     * @return 原图fileKey
-     */
-    @Override
-    public String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail) {
-        return fileService.uploadImage(image, bucketName, contentType, needThumbnail);
     }
 }
