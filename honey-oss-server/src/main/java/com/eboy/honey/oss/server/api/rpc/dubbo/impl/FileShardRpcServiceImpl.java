@@ -4,7 +4,7 @@ package com.eboy.honey.oss.server.api.rpc.dubbo.impl;
 import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.api.dto.ConcurrentShardDto;
 import com.eboy.honey.oss.api.dto.FileShardDto;
-import com.eboy.honey.oss.api.service.FileShardRpcService;
+import com.eboy.honey.oss.api.service.dubbo.FileShardRpcService;
 import com.eboy.honey.oss.server.application.service.FileShardService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileShardVo;
