@@ -1,5 +1,7 @@
 package com.eboy.honey.oss.api.dto;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -13,18 +15,22 @@ public class FileShardDto implements Serializable {
     /**
      * 唯一id
      */
+    @NotEmpty
     private String uid;
     /**
      * 文件唯一标志
      */
+    @NotEmpty
     private String fileKey;
     /**
      * 分片文件名
      */
+    @NotEmpty
     private String shardName;
     /**
      * 当前分片
      */
+    @NotEmpty
     private int shardIndex;
     /**
      * 分片状态 0-上传中 1-上传成功 2-上传失败
@@ -33,6 +39,7 @@ public class FileShardDto implements Serializable {
     /**
      * 分片流
      */
+    @NotNull
     private HoneyStream honeyStream;
     /**
      * 创建时间
