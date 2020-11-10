@@ -1,4 +1,4 @@
-package com.eboy.honeyoss.demo;
+package com.eboy.honey.oss.demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
