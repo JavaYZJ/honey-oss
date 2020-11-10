@@ -7,7 +7,6 @@ import com.eboy.honey.oss.strategy.SecondTransStrategy;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.dubbo.config.annotation.Reference;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Collections;
@@ -16,7 +15,6 @@ import java.util.Collections;
  * @author yangzhijie
  * @date 2020/11/4 16:33
  */
-@Service
 public class Md5DigestAsHex implements SecondTransStrategy {
 
     @Reference(version = "1.0")

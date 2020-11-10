@@ -3,6 +3,7 @@ package com.eboy.honey.oss.api;
 import com.eboy.honey.oss.annotation.SecondTrans;
 import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.api.dto.FileDto;
+import com.eboy.honey.oss.api.entiy.CallBack;
 import com.eboy.honey.oss.api.service.dubbo.FileRpcService;
 import com.eboy.honey.oss.api.service.dubbo.FileShardRpcService;
 import com.eboy.honey.oss.api.service.dubbo.PureFileRpcService;
@@ -65,6 +66,10 @@ public class HoneyOss {
         return fileDto.getFileKey();
     }
 
+
+    public void asyncUpload(File file, String bucketName, MediaType contentType, CallBack callBack) {
+
+    }
 
     public String downAsUrl(String bucketName, String fileKey) {
         return fileRpcService.downAsUrl(bucketName, fileKey);
