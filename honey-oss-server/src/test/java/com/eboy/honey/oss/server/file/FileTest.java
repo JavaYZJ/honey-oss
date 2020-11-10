@@ -60,7 +60,7 @@ public class FileTest {
 
     @Test
     public void fileUploadAsync() {
-        String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\6.jpg";
+        String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\2.jpg";
         File file = new File(pathName);
         fileService.asyncUpload(file, bucketName, MediaType.IMAGE_JPEG, "http://localhost:8089/rest/callback");
     }
