@@ -1,4 +1,4 @@
-package com.eboy.honey.oss.server.application.constant;
+package com.eboy.honey.oss.api.constant;
 
 /**
  * @author yangzhijie

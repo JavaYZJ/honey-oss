@@ -1,5 +1,6 @@
 package com.eboy.honey.oss.api.dto;
 
+import javax.validation.constraints.NotEmpty;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
@@ -15,14 +16,17 @@ public class FileDto implements Serializable {
     /**
      * 唯一id
      */
+    @NotEmpty
     private String uid;
     /**
      * 文件名
      */
+    @NotEmpty
     private String fileName;
     /**
      * 文件key标志
      */
+    @NotEmpty
     private String fileKey;
     /**
      * 文件后缀
@@ -31,7 +35,8 @@ public class FileDto implements Serializable {
     /**
      * 文件大小
      */
-    private long fileSize;
+    @NotEmpty
+    private Long fileSize;
     /**
      * 文件相对路径
      */
@@ -45,6 +50,15 @@ public class FileDto implements Serializable {
      */
     private int shardTotal;
 
+    /**
+     * 所属桶名
+     */
+    @NotEmpty
+    private String bucketName;
+    /**
+     * 文件状态 0-上传中 1-上传成功 2-上传失败
+     */
+    private int fileState;
     /**
      * 文件
      */
@@ -171,5 +185,21 @@ public class FileDto implements Serializable {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
+    public Integer getFileState() {
+        return fileState;
+    }
+
+    public void setFileState(Integer fileState) {
+        this.fileState = fileState;
     }
 }

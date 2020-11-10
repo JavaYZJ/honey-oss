@@ -10,8 +10,11 @@
 
     <modules>
         <module>honey-oss-server</module>
+        <module>honey-oss-api</module>
         <module>honey-oss-sdk</module>
         <module>honey-oss-job</module>
+        <module>honey-oss-admin</module>
+        <module>honey-oss-demo</module>
     </modules>
     <properties>
         <java.version>1.8</java.version>

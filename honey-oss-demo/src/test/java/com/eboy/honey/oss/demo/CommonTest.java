@@ -1,4 +1,4 @@
-package com.eboy.honeyoss.demo;
+package com.eboy.honey.oss.demo;
 
 
 import com.eboy.honey.oss.api.service.dubbo.FileRpcService;

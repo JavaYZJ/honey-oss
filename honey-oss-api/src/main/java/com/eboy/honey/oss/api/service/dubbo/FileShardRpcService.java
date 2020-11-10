@@ -1,4 +1,4 @@
-package com.eboy.honey.oss.api.service;
+package com.eboy.honey.oss.api.service.dubbo;
 
 
 import com.eboy.honey.oss.api.constant.FileState;

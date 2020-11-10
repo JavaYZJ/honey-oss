@@ -1,6 +1,7 @@
-package com.eboy.honeyoss.demo;
+package com.eboy.honey.oss.demo;
 
 import com.eboy.honey.oss.api.HoneyOss;
+import com.eboy.honey.oss.api.entiy.CallBack;
 import com.eboy.honey.oss.client.HoneyMiniO;
 import io.minio.MinioClient;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +33,12 @@ public class SdkTest {
     @Value("${honey.oss.bucketName}")
     private String bucketName;
 
+    @Autowired
+    private TestApi testApi;
+
     @Test
     public void test() {
-        String url = honeyOss.downAsUrl("honey-oss-dev", "52c1db014d80bd4b4dbf7fe1bc37a3c5");
+        String url = honeyOss.downAsUrl("honey-oss-dev", "f723b04005c11ab3710618f247611883");
         log.info(url);
     }
 
@@ -44,5 +48,22 @@ public class SdkTest {
         File file = new File(pathName);
         String upload = honeyOss.upload(file, bucketName, MediaType.IMAGE_JPEG);
         log.debug(upload);
+    }
+
+    @Test
+    public void test1() {
+        String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\2.jpg";
+        File file = new File(pathName);
+        String upload = testApi.upload(file, bucketName, MediaType.IMAGE_JPEG);
+        log.debug(upload);
+    }
+
+    @Test
+    public void asyncUpload() {
+        String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\2.jpg";
+        File file = new File(pathName);
+        CallBack callBack = new CallBack();
+        callBack.setCallBackHttpUrl("http://localhost:8089/rest/callback");
+        testApi.asyncUpload(file, bucketName, MediaType.IMAGE_JPEG, callBack);
     }
 }

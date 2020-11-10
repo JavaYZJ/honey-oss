@@ -1,12 +1,10 @@
-package com.eboy.honey.oss.api.service;
+package com.eboy.honey.oss.api.service.dubbo;
 
 
 import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.api.dto.FileDto;
 import com.eboy.honey.oss.api.dto.HoneyStream;
-import org.springframework.http.MediaType;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -14,40 +12,6 @@ import java.util.List;
  * @date 2020/8/6 13:34
  */
 public interface FileRpcService {
-
-
-    /**
-     * 上传文件(不分片)
-     *
-     * @param file        文件实体
-     * @param bucketName  桶名
-     * @param contentType contentType
-     * @return fileKey
-     */
-    String upload(File file, String bucketName, MediaType contentType);
-
-
-    /**
-     * 文件上传(不分片)
-     *
-     * @param fileDto     文件实体
-     * @param bucketName  桶名
-     * @param contentType contentType
-     * @return fileKey
-     */
-    String upload(FileDto fileDto, String bucketName, MediaType contentType);
-
-
-    /**
-     * 分片上传
-     *
-     * @param fileDto     文件
-     * @param bucketName  桶名
-     * @param contentType contentType
-     * @return fileKey
-     */
-    String uploadByShard(FileDto fileDto, String bucketName, MediaType contentType);
-
 
     /**
      * 下载为url
@@ -135,17 +99,6 @@ public interface FileRpcService {
      * @return 是否成功
      */
     boolean updateFileState(String fileKey, FileState fileState);
-
-    /**
-     * 上传图片
-     *
-     * @param image         图片源
-     * @param bucketName    桶名
-     * @param contentType   contentType
-     * @param needThumbnail 是否需要缩略图
-     * @return 是否成功
-     */
-    String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail);
 
 
 }
