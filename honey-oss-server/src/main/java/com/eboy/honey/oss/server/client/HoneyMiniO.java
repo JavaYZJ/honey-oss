@@ -291,12 +291,9 @@ public class HoneyMiniO {
     private void checkBucket(String bucketName) throws Exception {
         // 检查存储桶是否已经存在
         boolean isExist = minioClient.bucketExists(bucketName);
-        if (isExist) {
-            log.debug("Bucket already exists.");
-        } else {
+        if (!isExist) {
             // 创建一个名为bucketName的存储桶，用于存储文件。
             minioClient.makeBucket(bucketName);
         }
-
     }
 }

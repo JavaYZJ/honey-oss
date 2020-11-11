@@ -92,7 +92,7 @@ public class FileTest {
 
     @Test
     public void getFileByFileKeys() {
-        List<FileVo> file = fileService.getFileByFileKeys(Lists.newArrayList("6de44f6131bc1eb58ec24cdf07c4d800", "fd83d2d860d3a3cfdcd367ce3deb9f5a", "b7572e9f8bdc3d7968af1445055e287e"));
+        List<FileVo> file = fileService.getFileByFileKeys(Lists.newArrayList("6357c75ec726f4b0eaeea45a6e6269b1"));
         log.info(JSON.toJSONString(file));
     }
 
@@ -110,8 +110,9 @@ public class FileTest {
 
     @Test
     public void test() {
-        File file = new File("C:\\Users\\admin\\Pictures\\Saved Pictures\\5.jpg");
+        File file = new File("C:\\Users\\admin\\Pictures\\Saved Pictures\\test.jpg");
         String fileKey = fileService.uploadImage(file, bucketName, MediaType.IMAGE_JPEG, true);
+        log.info(fileKey);
         String url = fileService.downAsUrl(bucketName, fileKey, 60);
         log.info(url);
     }

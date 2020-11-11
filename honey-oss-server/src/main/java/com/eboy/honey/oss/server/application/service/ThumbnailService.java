@@ -3,7 +3,7 @@ package com.eboy.honey.oss.server.application.service;
 import com.eboy.honey.oss.api.constant.ImageType;
 import com.eboy.honey.oss.api.entiy.OutputMode;
 import com.eboy.honey.oss.api.entiy.Thumbnail;
-import com.eboy.honey.oss.server.application.utils.FilePathUtil;
+import com.eboy.honey.oss.api.utils.FilePathUtil;
 import com.sun.istack.internal.NotNull;
 import org.springframework.http.MediaType;
 
