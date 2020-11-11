@@ -41,14 +41,6 @@ public interface FileRpcService {
      */
     HoneyStream downAsStream(String bucketName, String fileKey);
 
-    /**
-     * 下载至本地
-     *
-     * @param bucketName   桶名
-     * @param fileKey      fileKey
-     * @param fileDownPath 指定下载到本地的文件目录
-     */
-    void down2Local(String bucketName, String fileKey, String fileDownPath);
 
     /**
      * 根据ids查找文件
