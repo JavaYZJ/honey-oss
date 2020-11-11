@@ -5,9 +5,12 @@ import com.eboy.honey.oss.api.dto.HoneyStream;
 import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author yangzhijie
@@ -15,6 +18,38 @@ import java.io.FileInputStream;
  */
 @Slf4j
 public class BeanConverter {
+
+
+    /**
+     * bean 的dto vo po 转换器
+     *
+     * @param source 源
+     * @param clazz  目标class
+     */
+    public static <S, T> T convert(S source, Class<T> clazz) {
+        try {
+            T instance = clazz.newInstance();
+            BeanUtils.copyProperties(source, instance);
+            return instance;
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException("bean convert fail");
+        }
+
+    }
+
+    /**
+     * list bean 的dto vo po 转换器
+     *
+     * @param source 源
+     * @param clazz  目标class
+     */
+    public static <T, S> List<T> convertByList(List<S> source, Class<T> clazz) {
+        List<T> ts = new ArrayList<>();
+        for (S s : source) {
+            ts.add(convert(s, clazz));
+        }
+        return ts;
+    }
 
 
     public static FileDto convert2FileDto(File file) {
