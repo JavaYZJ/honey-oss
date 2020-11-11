@@ -3,17 +3,17 @@ package com.eboy.honey.oss.server.api.rpc.dubbo.impl;
 
 import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.api.dto.FileDto;
+import com.eboy.honey.oss.api.dto.FileShardDto;
 import com.eboy.honey.oss.api.dto.HoneyStream;
 import com.eboy.honey.oss.api.service.dubbo.FileRpcService;
-import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.server.application.service.FileService;
 import com.eboy.honey.oss.server.application.utils.BeanConvertUtil;
 import com.eboy.honey.oss.server.application.vo.FileVo;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yangzhijie
@@ -62,18 +62,6 @@ public class FileRpcServiceImpl implements FileRpcService {
         return fileService.downAsHoneyStream(bucketName, fileKey);
     }
 
-    /**
-     * 下载至本地
-     *
-     * @param bucketName   桶名
-     * @param fileKey      fileKey
-     * @param fileDownPath 指定下载到本地的文件目录
-     */
-    @Override
-    public void down2Local(String bucketName, String fileKey, String fileDownPath) {
-        InputStream inputStream = downAsStream(bucketName, fileKey).getInputStream();
-        HoneyFileUtil.writeToLocal(fileDownPath, inputStream);
-    }
 
     /**
      * 根据ids查找文件
@@ -96,7 +84,7 @@ public class FileRpcServiceImpl implements FileRpcService {
     @Override
     public List<FileDto> getFileByFileKeys(List<String> fileKeys) {
         List<FileVo> files = fileService.getFileByFileKeys(fileKeys);
-        return BeanConvertUtil.convertByList(files, FileDto.class);
+        return vo2Dto(files);
     }
 
     /**
@@ -143,5 +131,13 @@ public class FileRpcServiceImpl implements FileRpcService {
     @Override
     public boolean updateFileState(String fileKey, FileState fileState) {
         return fileService.updateFileState(fileKey, fileState);
+    }
+
+    private List<FileDto> vo2Dto(List<FileVo> list) {
+        return list.stream().map(e -> {
+            FileDto dto = BeanConvertUtil.convert(e, FileDto.class);
+            dto.setFileShardDtos(BeanConvertUtil.convertByList(e.getFileShardVos(), FileShardDto.class));
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

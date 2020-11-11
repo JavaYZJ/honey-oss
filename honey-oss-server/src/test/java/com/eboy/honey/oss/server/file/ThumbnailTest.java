@@ -66,7 +66,7 @@ public class ThumbnailTest {
 
     @Test
     public void getUrlByOriginalPicture() {
-        String url = thumbnailService.getUrlByOriginalPicture(bucketName, "b7572e9f8bdc3d7968af1445055e287e");
+        String url = thumbnailService.getUrlByOriginalPicture(bucketName, "41d16383020f27c1e43a6b75b3b30d14");
         log.info(url);
     }
 

@@ -53,7 +53,7 @@ public class FileVo {
     /**
      * 文件状态 0-上传中 1-上传成功 2-上传失败
      */
-    private Integer fileState;
+    private int fileState;
     /**
      * 流
      */
