@@ -1,8 +1,10 @@
 package com.eboy.honey.oss.api;
 
+import com.eboy.honey.oss.annotation.SecondTrans;
 import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.api.dto.FileDto;
 import com.eboy.honey.oss.api.dto.FileShardDto;
+import com.eboy.honey.oss.api.dto.HoneyStream;
 import com.eboy.honey.oss.api.entiy.CallBack;
 import com.eboy.honey.oss.api.entiy.Response;
 import com.eboy.honey.oss.api.entiy.Thumbnail;
@@ -13,18 +15,23 @@ import com.eboy.honey.oss.api.service.dubbo.ThumbnailRpcService;
 import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.client.HoneyMiniO;
 import com.eboy.honey.oss.utils.BeanConverter;
+import com.eboy.honey.oss.utils.HoneyWarpUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import static com.eboy.honey.oss.api.utils.HoneyFileUtil.buildShardName;
 
 /**
  * @author yangzhijie
@@ -32,6 +39,8 @@ import java.util.concurrent.CountDownLatch;
  */
 @Slf4j
 public class HoneyOss {
+
+    private final Integer SPILT_COUNT = 20;
 
     @Reference(version = "1.0")
     private FileRpcService fileRpcService;
@@ -61,7 +70,8 @@ public class HoneyOss {
      * @param contentType contentType
      * @return fileKey
      */
-    public String upload(File file, String bucketName, MediaType contentType) {
+    @SecondTrans(bucketName = "${honey.oss.minio.bucketName}")
+    public Response<String> upload(File file, String bucketName, MediaType contentType) {
         // file convert to fileDto
         FileDto fileDto = BeanConverter.convert2FileDto(file);
         fileDto.setBucketName(bucketName);
@@ -70,17 +80,24 @@ public class HoneyOss {
     }
 
 
-    public Response<FileShardDto> uploadByShard(String filePath, int count) {
+    @SecondTrans(bucketName = "${honey.oss.minio.bucketName}")
+    public Response<FileShardDto> uploadByShard(String filePath, String bucketName, MediaType contentType) throws IOException, InterruptedException {
         File file = new File(filePath);
         FileDto fileDto = HoneyFileUtil.convertFileDto(file);
-        HoneyFileUtil.spiltFile(filePath, count);
-        for (int i = 1; i <= count; i++) {
+        List<FileShardDto> shardDtos = new ArrayList<>();
+        HoneyFileUtil.spiltFile(filePath, SPILT_COUNT);
+        for (int i = 0; i < SPILT_COUNT; i++) {
             FileShardDto fileShardDto = new FileShardDto();
             fileShardDto.setUid(HoneyFileUtil.get32Uid());
             fileShardDto.setFileKey(fileDto.getFileKey());
-
+            fileShardDto.setShardIndex(i);
+            fileShardDto.setShardName(buildShardName(fileDto.getFileName(), i));
+            fileShardDto.setShardState(FileState.UPLOADING.getStateCode());
+            fileShardDto.setHoneyStream(new HoneyStream(FileUtils.openInputStream(new File(filePath + "_" + i + ".tmp"))));
+            shardDtos.add(fileShardDto);
         }
-        return null;
+        fileDto.setFileShardDtos(shardDtos);
+        return uploadByShard(fileDto, bucketName, contentType);
     }
 
     /**
@@ -96,6 +113,7 @@ public class HoneyOss {
         boolean isExit = fileRpcService.getFileByFileKeys(Collections.singletonList(fileDto.getFileKey())).size() > 0;
         if (!isExit) {
             // 插入到数据库
+            fileDto.setBucketName(bucketName);
             postFileRpcService.postFileInfo(fileDto);
         }
         List<FileShardDto> fileShardDtos = fileDto.getFileShardDtos();
@@ -127,6 +145,8 @@ public class HoneyOss {
         response.setFailures(failures);
         if (success.size() == fileShardDtos.size()) {
             response.setFileKey(fileDto.getFileKey());
+            // 所有分片上传完毕，设置文件状态为成功
+            fileRpcService.updateFileState(fileDto.getFileKey(), FileState.SUCCESS);
         }
         return response;
     }
@@ -152,12 +172,12 @@ public class HoneyOss {
      * @param contentType contentType
      * @return fileKey
      */
-    private String upload(FileDto fileDto, String bucketName, MediaType contentType) {
+    private Response<String> upload(FileDto fileDto, String bucketName, MediaType contentType) {
         postFileRpcService.postFileInfo(fileDto);
         // upload to MiniO
         String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileDto.getFileName(), fileDto.getFileKey());
         honeyMiniO.upload(bucketName, objectName, fileDto.getHoneyStream().getInputStream(), contentType);
-        return fileDto.getFileKey();
+        return HoneyWarpUtils.warpResponse(fileDto.getFileKey());
     }
 
     /**
@@ -229,7 +249,7 @@ public class HoneyOss {
      */
     public String uploadImage(File image, String bucketName, MediaType contentType, boolean needThumbnail) {
         // 先上传原图
-        String fileKey = upload(image, bucketName, contentType);
+        String fileKey = upload(image, bucketName, contentType).getFileKey();
         if (needThumbnail) {
             Thumbnail defaultThumbnail = thumbnailRpcService.defaultThumbnail(image);
             thumbnailHandle(bucketName, contentType, fileKey, defaultThumbnail);
@@ -248,7 +268,7 @@ public class HoneyOss {
      */
     public String uploadImage(File image, String bucketName, MediaType contentType, Thumbnail thumbnail) {
         // 先上传原图
-        String fileKey = upload(image, bucketName, contentType);
+        String fileKey = upload(image, bucketName, contentType).getFileKey();
         thumbnail = thumbnailRpcService.buildThumbnail(thumbnail);
         thumbnailHandle(bucketName, contentType, fileKey, thumbnail);
         return fileKey;

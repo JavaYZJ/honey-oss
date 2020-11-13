@@ -20,7 +20,7 @@ public @interface SecondTrans {
      */
     Class<? extends SecondTransStrategy> value() default Md5DigestAsHex.class;
 
-    String bucketName() default "";
+    String bucketName();
 
 
 }

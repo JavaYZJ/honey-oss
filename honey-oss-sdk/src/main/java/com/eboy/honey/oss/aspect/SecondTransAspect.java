@@ -4,6 +4,7 @@ import com.eboy.honey.oss.annotation.SecondTrans;
 import com.eboy.honey.oss.api.dto.FileDto;
 import com.eboy.honey.oss.utils.AnnotationUtils;
 import com.eboy.honey.oss.utils.BeanConverter;
+import com.eboy.honey.oss.utils.HoneyWarpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -49,7 +50,7 @@ public class SecondTransAspect implements ApplicationContextAware {
                 } else {
                     File file = getFile(jointPoint);
                     FileDto fileDto = BeanConverter.convert2FileDto(file);
-                    return fileDto.getFileKey();
+                    return HoneyWarpUtils.warpResponse(fileDto.getFileKey());
                 }
             } catch (Throwable throwable) {
                 log.error("aop happen error {}", throwable.getMessage());
