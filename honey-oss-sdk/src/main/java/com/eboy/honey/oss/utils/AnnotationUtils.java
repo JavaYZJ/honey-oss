@@ -87,8 +87,7 @@ public class AnnotationUtils {
     public static File getFile(ProceedingJoinPoint jointPoint) {
         Object[] arguments = jointPoint.getArgs();
         return (File) Arrays.stream(arguments).filter(e -> e instanceof File)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("the aop method not found File"));
+                .findFirst().orElseGet(() -> new File((String) arguments[0]));
     }
 
     public static boolean conditionOnSecondTrans(ProceedingJoinPoint jointPoint, ApplicationContext applicationContext, Environment environment) {
