@@ -136,7 +136,9 @@ public class FileRpcServiceImpl implements FileRpcService {
     private List<FileDto> vo2Dto(List<FileVo> list) {
         return list.stream().map(e -> {
             FileDto dto = BeanConvertUtil.convert(e, FileDto.class);
-            dto.setFileShardDtos(BeanConvertUtil.convertByList(e.getFileShardVos(), FileShardDto.class));
+            if (e.getFileShardVos() != null) {
+                dto.setFileShardDtos(BeanConvertUtil.convertByList(e.getFileShardVos(), FileShardDto.class));
+            }
             return dto;
         }).collect(Collectors.toList());
     }
