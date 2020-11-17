@@ -10,7 +10,6 @@ import org.springframework.util.DigestUtils;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -159,9 +158,7 @@ public class HoneyFileUtil {
      */
     public static String getFileKey(@NotNull InputStream inputStream) {
         try {
-            ByteArrayOutputStream stream = cloneInputStream(inputStream);
-            InputStream var1 = new ByteArrayInputStream(Objects.requireNonNull(stream).toByteArray());
-            return DigestUtils.md5DigestAsHex(var1);
+            return DigestUtils.md5DigestAsHex(inputStream);
         } catch (IOException e) {
             log.warn("获取文件的FileKey失败，原因：{}", e.getMessage());
             throw new RuntimeException(e);
