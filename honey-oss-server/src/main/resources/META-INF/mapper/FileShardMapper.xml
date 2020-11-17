@@ -14,6 +14,7 @@
             #{fileShard.shardState},
         </if>
         #{fileShard.shardIndex})
+        ON DUPLICATE KEY UPDATE update_time = now()
     </insert>
 
     <update id="updateFileShardState">

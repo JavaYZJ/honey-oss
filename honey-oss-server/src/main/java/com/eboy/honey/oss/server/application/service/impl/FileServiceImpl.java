@@ -362,7 +362,7 @@ public class FileServiceImpl implements FileService {
      */
     private List<FileVo> mergeFileShad(List<FilePo> sources) {
         if (CollectionUtils.isEmpty(sources)) {
-            throw new IllegalArgumentException("file or thumbnail not found");
+            return Collections.emptyList();
         }
         Map<String, List<FileShardVo>> rs = fileShardService.getFileShardInfoByFileKeys(
                 sources.stream()
