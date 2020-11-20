@@ -19,8 +19,8 @@ honey:
     appId: 2157104550
     appKey: v7FCd5UZOyRqNxSL
     minio:
-      url: http://192.168.200.211:9000
-      accesskey: HONEYOSS
-      secretkey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+      url: http://oss.honey.red
+      accesskey: YANGZHIJIEHONEYOSS
+      secretkey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
       bucketName: honey-oss-dev
 
