@@ -1,5 +1,7 @@
 package com.eboy.honey.oss.client;
 
+import com.eboy.honey.oss.api.dto.FileShardDto;
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.utils.HoneyIOUtil;
 import io.minio.*;
 import io.minio.http.Method;
@@ -8,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -181,6 +185,36 @@ public class HoneyMiniO {
         }
     }
 
+    /**
+     * 分片合并
+     *
+     * @param bucketName    桶名
+     * @param fileShardDtos 分片数据
+     * @param objectName    合并后的文件的objectName
+     * @return ObjectWriteResponse
+     */
+    public ObjectWriteResponse compose(String bucketName, List<FileShardDto> fileShardDtos, String objectName) {
+        List<ComposeSource> sourceObjectList = new ArrayList<>();
+        fileShardDtos.forEach(fileShardDto -> {
+            String shardObjectName = HoneyFileUtil.buildObjectNameByFileKey(fileShardDto.getShardName(), fileShardDto.getFileKey());
+            sourceObjectList.add(
+                    ComposeSource.builder().bucket(bucketName)
+                            .object(shardObjectName)
+                            .build()
+            );
+        });
+        try {
+            return minioClient.composeObject(
+                    ComposeObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .sources(sourceObjectList)
+                            .build());
+        } catch (Exception e) {
+            // todo 记录起来，后续做补偿机制
+            throw new RuntimeException(e);
+        }
+    }
 
     private void checkBucket(String bucketName) throws Exception {
         // 检查存储桶是否已经存在

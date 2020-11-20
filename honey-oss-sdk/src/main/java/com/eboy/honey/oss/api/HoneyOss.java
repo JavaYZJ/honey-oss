@@ -14,6 +14,7 @@ import com.eboy.honey.oss.api.service.dubbo.PureFileRpcService;
 import com.eboy.honey.oss.api.service.dubbo.ThumbnailRpcService;
 import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.client.HoneyMiniO;
+import com.eboy.honey.oss.task.AsyncTask;
 import com.eboy.honey.oss.utils.BeanConverter;
 import com.eboy.honey.oss.utils.HoneyWarpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -40,34 +41,23 @@ import static com.eboy.honey.oss.api.utils.HoneyFileUtil.buildShardName;
 @Slf4j
 public class HoneyOss {
 
-    /**
-     * 默认分割数
-     */
     private final Integer SPILT_COUNT = 5;
-
-    /**
-     * 线程池
-     */
+    @Reference(version = "1.0")
+    private FileRpcService fileRpcService;
+    @Reference(version = "1.0")
+    private FileShardRpcService fileShardRpcService;
+    @Reference(version = "1.0")
+    private ThumbnailRpcService thumbnailRpcService;
+    @Reference(version = "1.0")
+    private PureFileRpcService postFileRpcService;
+    @Autowired
+    private AsyncTask asyncTask;
+    @Autowired
+    private HoneyMiniO honeyMiniO;
     // todo 线程池参数合理化
     private ThreadPoolExecutor pool = new ThreadPoolExecutor(10, 20, 60,
             TimeUnit.SECONDS, new ArrayBlockingQueue<>(5), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy()
     );
-
-    @Reference(version = "1.0")
-    private FileRpcService fileRpcService;
-
-    @Reference(version = "1.0")
-    private FileShardRpcService fileShardRpcService;
-
-    @Reference(version = "1.0")
-    private ThumbnailRpcService thumbnailRpcService;
-
-    @Reference(version = "1.0")
-    private PureFileRpcService postFileRpcService;
-
-    @Autowired
-    private HoneyMiniO honeyMiniO;
-
 
     /**
      * 上传文件
@@ -150,6 +140,8 @@ public class HoneyOss {
             response.setFileKey(fileDto.getFileKey());
             // 所有分片上传完毕，设置文件状态为成功
             fileRpcService.updateFileState(fileDto.getFileKey(), FileState.SUCCESS);
+            // 异步compose分片（考虑到大部分情况下上传后又马上直接下载）
+            asyncTask.composeShard(fileDto.getBucketName(), fileShardDtos, HoneyFileUtil.buildObjectNameByFileKey(fileDto.getFileName(), fileDto.getFileKey()));
         }
         return response;
     }
