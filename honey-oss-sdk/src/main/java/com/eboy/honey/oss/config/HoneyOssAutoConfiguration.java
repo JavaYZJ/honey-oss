@@ -11,13 +11,13 @@ import com.eboy.honey.oss.strategy.impl.Md5DigestAsHex;
 import com.eboy.honey.oss.strategy.impl.RestCallback;
 import com.eboy.honey.oss.task.AsyncTask;
 import io.minio.MinioClient;
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.*;
+
+import static io.minio.MinioClient.builder;
 
 /**
  * @author yangzhijie
@@ -52,16 +52,7 @@ public class HoneyOssAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(MinioClient.class)
     public MinioClient minioClient(@Qualifier("minioProperties") MinioProperties minioProperties) {
-        try {
-            return new MinioClient(
-                    minioProperties.getUrl(),
-                    minioProperties.getAccessKey(),
-                    minioProperties.getSecretKey()
-            );
-        } catch (InvalidEndpointException | InvalidPortException e) {
-            log.warn("实例化MinioClient失败，原因：{}", e.getMessage());
-            throw new RuntimeException(e);
-        }
+        return builder().endpoint(minioProperties.getUrl()).credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey()).build();
     }
 
     @Bean

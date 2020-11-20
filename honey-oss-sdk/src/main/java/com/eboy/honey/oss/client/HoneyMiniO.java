@@ -1,12 +1,18 @@
 package com.eboy.honey.oss.client;
 
+import com.eboy.honey.oss.api.dto.FileShardDto;
+import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.utils.HoneyIOUtil;
-import io.minio.MinioClient;
+import io.minio.*;
+import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author yangzhijie
@@ -29,7 +35,7 @@ public class HoneyMiniO {
     public void upload(String bucketName, String objectName, String filePath, MediaType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, filePath, contentType.toString());
+            minioClient.uploadObject(UploadObjectArgs.builder().bucket(bucketName).object(objectName).filename(filePath).contentType(contentType.toString()).build());
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -48,7 +54,7 @@ public class HoneyMiniO {
     public void upload(String bucketName, String objectName, long size, InputStream inputStream, MediaType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, inputStream, size, contentType.toString());
+            minioClient.putObject(PutObjectArgs.builder().bucket(bucketName).object(objectName).stream(inputStream, size, -1).contentType(contentType.toString()).build());
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -69,7 +75,7 @@ public class HoneyMiniO {
     public void upload(String bucketName, String objectName, InputStream inputStream, MediaType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
+            minioClient.putObject(PutObjectArgs.builder().bucket(bucketName).object(objectName).stream(inputStream, inputStream.available(), -1).contentType(contentType.toString()).build());
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -91,8 +97,8 @@ public class HoneyMiniO {
     public String uploadAndGetUrl(String bucketName, String objectName, InputStream inputStream, MediaType contentType) {
         try {
             checkBucket(bucketName);
-            minioClient.putObject(bucketName, objectName, inputStream, contentType.toString());
-            return minioClient.getObjectUrl(bucketName, objectName);
+            minioClient.putObject(PutObjectArgs.builder().bucket(bucketName).object(objectName).stream(inputStream, inputStream.available(), -1).contentType(contentType.toString()).build());
+            return downAsUrl(bucketName, objectName);
         } catch (Exception e) {
             log.warn("上传失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -110,7 +116,7 @@ public class HoneyMiniO {
      */
     public void down2Local(String bucketName, String objectName, String fileDownPath) {
         try {
-            minioClient.getObject(bucketName, objectName, fileDownPath);
+            minioClient.downloadObject(DownloadObjectArgs.builder().bucket(bucketName).object(objectName).filename(fileDownPath).build());
         } catch (Exception e) {
             log.warn("下载失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -126,7 +132,7 @@ public class HoneyMiniO {
      */
     public InputStream downAsStream(String bucketName, String objectName) {
         try {
-            return minioClient.getObject(bucketName, objectName);
+            return minioClient.getObject(GetObjectArgs.builder().bucket(bucketName).object(objectName).build());
         } catch (Exception e) {
             log.warn("下载失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -143,7 +149,12 @@ public class HoneyMiniO {
      */
     public String downAsUrl(String bucketName, String objectName) {
         try {
-            return minioClient.presignedGetObject(bucketName, objectName);
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .build());
         } catch (Exception e) {
             log.warn("下载失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
@@ -155,25 +166,62 @@ public class HoneyMiniO {
      *
      * @param bucketName 桶名
      * @param objectName 对象名
-     * @param expires    过期时间（秒）
+     * @param duration   过期时间
+     * @param unit       单位
      * @return string 文件的url
      */
-    public String downAsUrl(String bucketName, String objectName, Integer expires) {
+    public String downAsUrl(String bucketName, String objectName, int duration, TimeUnit unit) {
         try {
-            return minioClient.presignedGetObject(bucketName, objectName, expires);
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .expiry(duration, unit)
+                            .build());
         } catch (Exception e) {
             log.warn("下载失败：原因：{}", e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * 分片合并
+     *
+     * @param bucketName    桶名
+     * @param fileShardDtos 分片数据
+     * @param objectName    合并后的文件的objectName
+     * @return ObjectWriteResponse
+     */
+    public ObjectWriteResponse compose(String bucketName, List<FileShardDto> fileShardDtos, String objectName) {
+        List<ComposeSource> sourceObjectList = new ArrayList<>();
+        fileShardDtos.forEach(fileShardDto -> {
+            String shardObjectName = HoneyFileUtil.buildObjectNameByFileKey(fileShardDto.getShardName(), fileShardDto.getFileKey());
+            sourceObjectList.add(
+                    ComposeSource.builder().bucket(bucketName)
+                            .object(shardObjectName)
+                            .build()
+            );
+        });
+        try {
+            return minioClient.composeObject(
+                    ComposeObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .sources(sourceObjectList)
+                            .build());
+        } catch (Exception e) {
+            // todo 记录起来，后续做补偿机制
+            throw new RuntimeException(e);
+        }
+    }
 
     private void checkBucket(String bucketName) throws Exception {
         // 检查存储桶是否已经存在
-        boolean isExist = minioClient.bucketExists(bucketName);
+        boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
         if (!isExist) {
             // 创建一个名为bucketName的存储桶，用于存储文件。
-            minioClient.makeBucket(bucketName);
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         }
     }
 }

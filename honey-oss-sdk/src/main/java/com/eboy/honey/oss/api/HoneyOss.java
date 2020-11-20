@@ -14,9 +14,9 @@ import com.eboy.honey.oss.api.service.dubbo.PureFileRpcService;
 import com.eboy.honey.oss.api.service.dubbo.ThumbnailRpcService;
 import com.eboy.honey.oss.api.utils.HoneyFileUtil;
 import com.eboy.honey.oss.client.HoneyMiniO;
+import com.eboy.honey.oss.task.AsyncTask;
 import com.eboy.honey.oss.utils.BeanConverter;
 import com.eboy.honey.oss.utils.HoneyWarpUtils;
-import com.google.common.base.Stopwatch;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.dubbo.config.annotation.Reference;
@@ -42,26 +42,22 @@ import static com.eboy.honey.oss.api.utils.HoneyFileUtil.buildShardName;
 public class HoneyOss {
 
     private final Integer SPILT_COUNT = 5;
-
-    private ThreadPoolExecutor pool = new ThreadPoolExecutor(5, 15, 60,
-            TimeUnit.SECONDS, new ArrayBlockingQueue<>(5), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy()
-    );
-
     @Reference(version = "1.0")
     private FileRpcService fileRpcService;
-
     @Reference(version = "1.0")
     private FileShardRpcService fileShardRpcService;
-
     @Reference(version = "1.0")
     private ThumbnailRpcService thumbnailRpcService;
-
     @Reference(version = "1.0")
     private PureFileRpcService postFileRpcService;
-
+    @Autowired
+    private AsyncTask asyncTask;
     @Autowired
     private HoneyMiniO honeyMiniO;
-
+    // todo 线程池参数合理化
+    private ThreadPoolExecutor pool = new ThreadPoolExecutor(10, 20, 60,
+            TimeUnit.SECONDS, new ArrayBlockingQueue<>(5), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy()
+    );
 
     /**
      * 上传文件
@@ -80,7 +76,6 @@ public class HoneyOss {
         // file convert to fileDto
         FileDto fileDto = BeanConverter.convert2FileDto(file);
         fileDto.setBucketName(bucketName);
-        fileDto.setFileState(FileState.SUCCESS.getStateCode());
         return upload(fileDto, bucketName, contentType);
     }
 
@@ -145,6 +140,8 @@ public class HoneyOss {
             response.setFileKey(fileDto.getFileKey());
             // 所有分片上传完毕，设置文件状态为成功
             fileRpcService.updateFileState(fileDto.getFileKey(), FileState.SUCCESS);
+            // 异步compose分片（考虑到大部分情况下上传后又马上直接下载）
+            asyncTask.composeShard(fileDto.getBucketName(), fileShardDtos, HoneyFileUtil.buildObjectNameByFileKey(fileDto.getFileName(), fileDto.getFileKey()));
         }
         return response;
     }
@@ -181,11 +178,9 @@ public class HoneyOss {
     private Response<String> upload(FileDto fileDto, String bucketName, MediaType contentType) {
         postFileRpcService.postFileInfo(fileDto);
         // upload to MiniO
-        Stopwatch stopwatch = Stopwatch.createStarted();
         String objectName = HoneyFileUtil.buildObjectNameByFileKey(fileDto.getFileName(), fileDto.getFileKey());
         honeyMiniO.upload(bucketName, objectName, fileDto.getHoneyStream().getInputStream(), contentType);
-        stopwatch.stop();
-        log.debug("整体上传至minio所需时间：{}", stopwatch.elapsed(TimeUnit.SECONDS));
+        fileRpcService.updateFileState(fileDto.getFileKey(), FileState.SUCCESS);
         return HoneyWarpUtils.warpResponse(fileDto.getFileKey());
     }
 
@@ -208,7 +203,7 @@ public class HoneyOss {
      * @return string 文件的url
      */
     public String downAsUrl(String bucketName, String fileKey) {
-        return fileRpcService.downAsUrl(bucketName, fileKey);
+        return honeyMiniO.downAsUrl(bucketName, fileKey);
     }
 
     /**

@@ -52,9 +52,9 @@ public class FileTest {
 
     @Test
     public void fileUpload() {
-        String pathName = "C:\\Users\\admin\\Pictures\\Saved Pictures\\2.jpg";
+        String pathName = "C:\\Users\\admin\\Downloads\\ideaIU-2019.3.4.exe";
         File file = new File(pathName);
-        String upload = fileService.upload(file, "public1", MediaType.IMAGE_JPEG);
+        String upload = fileService.upload(file, bucketName, MediaType.APPLICATION_OCTET_STREAM);
         log.info("是否上传成功：{}", !upload.isEmpty());
     }
 

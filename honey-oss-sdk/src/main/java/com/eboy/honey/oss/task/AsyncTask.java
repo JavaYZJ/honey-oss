@@ -3,6 +3,7 @@ package com.eboy.honey.oss.task;
 import com.eboy.honey.oss.api.constant.CallbackConstant;
 import com.eboy.honey.oss.api.constant.FileState;
 import com.eboy.honey.oss.api.dto.FileDto;
+import com.eboy.honey.oss.api.dto.FileShardDto;
 import com.eboy.honey.oss.api.entiy.CallBack;
 import com.eboy.honey.oss.api.service.dubbo.FileRpcService;
 import com.eboy.honey.oss.api.utils.CallBackUtil;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author yangzhijie
@@ -54,6 +57,11 @@ public class AsyncTask {
             callBack = CallBackUtil.buildCallback(data, callBack.getCallBackHttpUrl(), code, msg);
             callbackStrategy.callbackProcess(callBack);
         }
+    }
+
+    @Async("asyncExecutor")
+    public void composeShard(String bucketName, List<FileShardDto> fileShardDtos, String objectName) {
+        honeyMiniO.compose(bucketName, fileShardDtos, objectName);
     }
 
 }
