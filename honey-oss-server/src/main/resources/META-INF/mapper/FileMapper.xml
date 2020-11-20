@@ -28,7 +28,7 @@
             ,(#{file.fileState})
         </if>
         ,#{file.bucketName})
-        ON DUPLICATE KEY UPDATE update_time = now(),file_state = 1,is_deleted = 0
+        ON DUPLICATE KEY UPDATE update_time = now(),is_deleted = 0
     </insert>
     <select id="getFileByIds" resultType="com.eboy.honey.oss.server.application.po.FilePo">
         select
