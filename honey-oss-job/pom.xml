@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.eboy</groupId>
+    <groupId>red.honey</groupId>
     <artifactId>honey-oss-job</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>honey-oss-job</name>
@@ -24,17 +24,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- <dependency>
-             <groupId>org.springframework.cloud</groupId>
-             <artifactId>spring-cloud-starter-feign</artifactId>
-             <version>1.4.4.RELEASE</version>
-         </dependency>-->
-        <!-- fastJson-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.72</version>
-        </dependency>
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-job-core</artifactId>
@@ -44,6 +33,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.11</version>
+        </dependency>
+        <dependency>
+            <groupId>red.honey</groupId>
+            <artifactId>honey-oss-sdk</artifactId>
+            <version>1.0.0-beta</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -92,7 +86,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.3.0.RELEASE</version>
                 <configuration>
-                    <mainClass>com.eboy.honey.oss.job.HoneyOssJobApplication</mainClass>
+                    <mainClass>red.honey.oss.job.HoneyOssJobApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

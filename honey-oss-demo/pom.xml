@@ -8,7 +8,7 @@
         <version>2.3.0.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.eboy</groupId>
+    <groupId>red.honey</groupId>
     <artifactId>honey-oss-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>honey-oss-demo</name>
@@ -25,9 +25,9 @@
         </dependency>
         <!--honey-oss-sdk-->
         <dependency>
-            <groupId>com.eboy</groupId>
+            <groupId>red.honey</groupId>
             <artifactId>honey-oss-sdk</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0-beta</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

@@ -17,9 +17,6 @@ honey:
   oss:
     app_id: 2157104550
     app_key: v7FCd5UZOyRqNxSL
-    porn_url: https://api.ai.qq.com/fcgi-bin/vision/vision_porn
-    terrorism_url: https://api.ai.qq.com/fcgi-bin/image/image_terrorism
-    evilaudio_url: https://api.ai.qq.com/fcgi-bin/aai/aai_evilaudio
 
 server:
   port: 8089

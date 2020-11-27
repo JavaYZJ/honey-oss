@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.eboy.honey.oss.server.application.dao.FileMapper">
+<mapper namespace="red.honey.oss.server.application.dao.FileMapper">
 
     <sql id="file_base_filed"> uid,
                                file_name,
@@ -30,7 +30,7 @@
         ,#{file.bucketName})
         ON DUPLICATE KEY UPDATE update_time = now(),is_deleted = 0
     </insert>
-    <select id="getFileByIds" resultType="com.eboy.honey.oss.server.application.po.FilePo">
+    <select id="getFileByIds" resultType="red.honey.oss.server.application.po.FilePo">
         select
         <include refid="file_base_filed"/>
         from t_file where is_deleted = 0 and uid in
@@ -38,7 +38,7 @@
             #{item}
         </foreach>
     </select>
-    <select id="getFileByFileKeys" resultType="com.eboy.honey.oss.server.application.po.FilePo">
+    <select id="getFileByFileKeys" resultType="red.honey.oss.server.application.po.FilePo">
         select
         <include refid="file_base_filed"/>
         from t_file where is_deleted = 0 and file_key in
