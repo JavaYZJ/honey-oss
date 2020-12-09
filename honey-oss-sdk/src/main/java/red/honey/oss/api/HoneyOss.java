@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.*;
 
 import static red.honey.oss.api.utils.HoneyFileUtil.buildShardName;
@@ -81,10 +82,10 @@ public class HoneyOss {
 
 
     @SecondTrans(bucketName = "${honey.oss.minio.bucketName}")
-    public Response<FileShardDto> uploadByShard(String filePath, String bucketName, MediaType contentType) throws IOException, InterruptedException {
-        File file = new File(filePath);
+    public Response<FileShardDto> uploadByShard(File file, String bucketName, MediaType contentType) throws IOException, InterruptedException {
         FileDto fileDto = HoneyFileUtil.convertFileDto(file);
         List<FileShardDto> shardDtos = new ArrayList<>();
+        String filePath = file.getAbsolutePath();
         long shardSize = HoneyFileUtil.spiltFile(filePath, SPILT_COUNT);
         for (int i = 0; i < SPILT_COUNT; i++) {
             FileShardDto fileShardDto = new FileShardDto();
@@ -100,6 +101,21 @@ public class HoneyOss {
         fileDto.setShardSize(shardSize);
         fileDto.setFileShardDtos(shardDtos);
         return uploadByShard(fileDto, bucketName, contentType);
+    }
+
+    /**
+     * 将分片上传
+     *
+     * @param fileShardDtos 文件分片
+     * @param bucketName    桶名
+     * @param contentType   contentType
+     */
+    public Response<FileShardDto> uploadByShard(List<FileShardDto> fileShardDtos, String bucketName, MediaType contentType) throws InterruptedException {
+        Assert.notEmpty(fileShardDtos, "fileShardDtos must not empty");
+        String fileKey = fileShardDtos.get(0).getFileKey();
+        FileDto fileDto = Optional.ofNullable(fileRpcService.getFileByFileKeys(Collections.singletonList(fileKey))).orElseThrow(() -> new IllegalArgumentException("the file of the fileKey not found")).get(0);
+        fileDto.setFileShardDtos(fileShardDtos);
+        return shardProcess(fileDto, bucketName, contentType, fileShardDtos);
     }
 
     /**
