@@ -3,7 +3,7 @@ spring:
     name: honey-oss-sdk
 dubbo:
   scan:
-    base-packages: com.eboy.honey.oss
+    base-packages: red.honey.oss
   protocol:
     id: dubbo
     name: dubbo

@@ -20,13 +20,13 @@ honey:
     appId: 2157104550
     appKey: v7FCd5UZOyRqNxSL
     minio:
-      url: http://oss.honey.red
-      accesskey: YANGZHIJIEHONEYOSS
-      secretkey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+      url: http://192.168.200.211:9000
+      accesskey: HONEYOSS
+      secretkey: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       bucketName: honey-oss-dev
 dubbo:
   scan:
-    base-packages: com.eboy.honey.oss.server
+    base-packages: red.honey.oss.server
   protocol:
     id: dubbo
     name: dubbo
