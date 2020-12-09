@@ -36,9 +36,8 @@ public class PornIdentifyImpl implements IdentifyService {
      */
     @Override
     public String identify(String bucketName, String fileKey) {
-        InputStream inputStream = fileService.downAsStream(bucketName, fileKey);
         TAipVision aipVision = new TAipVision(appId, appKey);
-        try {
+        try (InputStream inputStream = fileService.downAsStream(bucketName, fileKey)) {
             byte[] bytes = IOUtils.toByteArray(inputStream);
             return aipVision.visionPorn(bytes);
         } catch (Exception e) {
