@@ -24,7 +24,7 @@
 
 >  Honey-OSS 技术栈主要是SpringBoot、zookeeper、dubbo、minio、mybatis、mysql。其架构图示意如下：
 
-![](https://www.zybuluo.com/static/img/logo.png "Honey-OSS架构")
+![](http://oss.honey.red/public/honey-oss%E6%9E%B6%E6%9E%84%E5%9B%BE.png "Honey-OSS架构")
 
 ------
 架构总体来说还算简单，没有过多复杂设计。相信熟悉Java开发的看到此架构应不会陌生。采用zookeeper作为注册中心，实现服务的注册与发现，**honey-oss-server**作为honey-oss整个服务的核心模块，向外即可提供REST服务，同时也将服务通过dubbo向ZK注册。**honey-oss-sdk**作为工具SDK方便开发者使用。另外**honey-oss-api**可方便开发者二次开发封装，打造更更方便强大的功能。
