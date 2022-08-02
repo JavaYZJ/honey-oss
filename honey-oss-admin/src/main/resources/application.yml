@@ -4,7 +4,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://49.235.39.179:3305/honey-oss?useUnicode=true&useSSL=false&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC&characterEncoding=utf8
     username: root
-    password: yangzhijie@cvte.com
+    password: yangzhijie@honey.red
   application:
     name: honey-oss-admin
 mybatis:
